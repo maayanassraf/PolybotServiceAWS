@@ -1,9 +1,14 @@
 import telebot
 from loguru import logger
 import os
+import json
 import time
+import boto3
+import requests
 from telebot.types import InputFile
 
+images_bucket = os.environ['BUCKET_NAME']
+queue_name = os.environ['SQS_QUEUE_NAME']
 
 class Bot:
 
@@ -17,7 +22,7 @@ class Bot:
         time.sleep(0.5)
 
         # set the webhook URL
-        self.telegram_bot_client.set_webhook(url=f'{telegram_chat_url}/{token}/', timeout=60)
+        self.telegram_bot_client.set_webhook(url=f'{telegram_chat_url}/{token}/', timeout=60, certificate=open("MAAYANPUBLIC.PEM", 'r'))
 
         logger.info(f'Telegram Bot information\n\n{self.telegram_bot_client.get_me()}')
 
@@ -71,6 +76,42 @@ class ObjectDetectionBot(Bot):
 
         if self.is_current_msg_photo(msg):
             photo_path = self.download_user_photo(msg)
+            sqs_client = boto3.client('sqs', region_name='eu-north-1')
+            chat_id = msg['chat']['id']
+
+            # TODO upload the photo to S3
+            # upload the downloaded photo to S3
+            s3_client = boto3.client('s3')
+            img_name = os.path.basename(photo_path)
+            s3_client.upload_file(
+                Bucket=f'{images_bucket}',
+                Key=f'images/{img_name}',
+                Filename=f'{photo_path}'
+            )
+
+            # TODO send a job to the SQS queue
+            job_message = {'img_name': img_name, 'chat_id': chat_id}
+            job_message = json.dumps(job_message)
+            response = sqs_client.send_message(QueueUrl=queue_name, MessageBody=job_message)
+
+            # send an HTTP request to the `yolo5` service for prediction
+            predict = requests.post(f'http://yolo5:8081/predict?imgName={img_name}')
+
+            # TODO send message to the Telegram end-user (e.g. Your image is being processed. Please wait...)
+            self.send_text((msg['chat']['id']), text=f'Your image is being processed. Please wait...')
+
+            # send the returned results to the Telegram end-user
+            # data = predict.json()
+            # objects = []
+            # labels = data['labels']
+            # for label in labels:
+            #     objects.append(label['class'])
+            #
+            # counter = dict.fromkeys(objects, 0)
+            # for val in objects:
+            #     counter[val] += 1
+            # print(f'Detected Objects: \n{counter}')
+            # self.send_text((msg['chat']['id']), text=f'Detected Objects: \n{counter}')
 
             # TODO upload the photo to S3
             # TODO send a job to the SQS queue
