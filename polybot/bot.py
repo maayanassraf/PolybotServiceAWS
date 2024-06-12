@@ -4,7 +4,6 @@ import os
 import json
 import time
 import boto3
-import requests
 from telebot.types import InputFile
 
 images_bucket = os.environ['BUCKET_NAME']
@@ -94,25 +93,5 @@ class ObjectDetectionBot(Bot):
             job_message = json.dumps(job_message)
             response = sqs_client.send_message(QueueUrl=queue_name, MessageBody=job_message)
 
-            # send an HTTP request to the `yolo5` service for prediction
-            predict = requests.post(f'http://yolo5:8081/predict?imgName={img_name}')
-
             # TODO send message to the Telegram end-user (e.g. Your image is being processed. Please wait...)
             self.send_text((msg['chat']['id']), text=f'Your image is being processed. Please wait...')
-
-            # send the returned results to the Telegram end-user
-            # data = predict.json()
-            # objects = []
-            # labels = data['labels']
-            # for label in labels:
-            #     objects.append(label['class'])
-            #
-            # counter = dict.fromkeys(objects, 0)
-            # for val in objects:
-            #     counter[val] += 1
-            # print(f'Detected Objects: \n{counter}')
-            # self.send_text((msg['chat']['id']), text=f'Detected Objects: \n{counter}')
-
-            # TODO upload the photo to S3
-            # TODO send a job to the SQS queue
-            # TODO send message to the Telegram end-user (e.g. Your image is being processed. Please wait...)

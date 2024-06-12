@@ -5,6 +5,7 @@ import yaml
 import json
 from loguru import logger
 import os
+import requests
 import boto3
 
 images_bucket = os.environ['BUCKET_NAME']
@@ -77,10 +78,10 @@ def consume():
                     labels = [line.split(' ') for line in labels]
                     labels = [{
                         'class': names[int(l[0])],
-                        'cx': float(l[1]),
-                        'cy': float(l[2]),
-                        'width': float(l[3]),
-                        'height': float(l[4]),
+                        'cx': str(float(l[1])),
+                        'cy': str(float(l[2])),
+                        'width': str(float(l[3])),
+                        'height': str(float(l[4])),
                     } for l in labels]
 
                 logger.info(f'prediction: {prediction_id}/{original_img_path}. prediction summary:\n\n{labels}')
@@ -88,13 +89,22 @@ def consume():
                 prediction_summary = {
                     'prediction_id': prediction_id,
                     'original_img_path': original_img_path,
-                    'predicted_img_path': predicted_img_path,
+                    'predicted_img_path': str(predicted_img_path),
                     'labels': labels,
-                    'time': time.time()
+                    'time': str(time.time()),
+                    'chat_id': chat_id
                 }
 
                 # TODO store the prediction_summary in a DynamoDB table
-                # TODO perform a GET request to Polybot to `/results` endpoint
+                dynamodb = boto3.resource('dynamodb')
+                table = dynamodb.Table('maayana-aws-project-predictions')
+
+                table.put_item(
+                    Item=prediction_summary
+                )
+
+                # TODO perform a GET request to Polybot to `/results` endpoint ?POST
+                result = requests.post(f'http://polybot:8443/results?predictionId={prediction_id}')
 
             # Delete the message from the queue as the job is considered as DONE
             sqs_client.delete_message(QueueUrl=queue_name, ReceiptHandle=receipt_handle)

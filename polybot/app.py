@@ -35,9 +35,27 @@ def results():
     prediction_id = request.args.get('predictionId')
 
     # TODO use the prediction_id to retrieve results from DynamoDB and send to the end-user
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('maayana-aws-project-predictions')
 
-    chat_id = ...
-    text_results = ...
+    response = table.get_item(
+        Key={
+            'prediction_id': prediction_id
+        }
+    )
+    prediction = response['Item']
+
+    chat_id = prediction['chat_id']
+    labels = prediction['labels']
+    objects = []
+    for label in labels:
+        objects.append(label['class'])
+
+    counter = dict.fromkeys(objects, 0)
+    for val in objects:
+        counter[val] += 1
+
+    text_results = f'Detected Objects: \n{counter}'
 
     bot.send_text(chat_id, text_results)
     return 'Ok'
