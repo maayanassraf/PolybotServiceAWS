@@ -18,7 +18,10 @@ jobs:
         run: |
           cd polybot
           
-          # TODO your implementation here....          
+          # TODO your implementation here....
+          POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
+          docker build -t $POLYBOT_IMAGE .
+          docker push $POLYBOT_IMAGE
 
   Deploy:
     runs-on: ubuntu-latest

@@ -10,8 +10,10 @@ import boto3
 
 images_bucket = os.environ['BUCKET_NAME']
 queue_name = os.environ['SQS_QUEUE_NAME']
+REGION_NAME = os.environ['REGION_NAME']
+DYNAMODB_TABLE = os.environ['DYNAMODB_TABLE']
 
-sqs_client = boto3.client('sqs', region_name='eu-north-1')
+sqs_client = boto3.client('sqs', region_name=REGION_NAME)
 
 with open("data/coco128.yaml", "r") as stream:
     names = yaml.safe_load(stream)['names']
@@ -69,9 +71,14 @@ def consume():
                 Bucket=f'{images_bucket}',
                 Key=f'predicted_images/{img_name}'
             )
+            logger.info(f'prediction: {prediction_id}{original_img_path}. upload to s3 completed.')
 
             # Parse prediction labels and create a summary
-            pred_summary_path = Path(f'static/data/{prediction_id}/labels{original_img_path.split(".")[0]}.txt')
+            split_summary_path = Path(f'static/data/{prediction_id}/labels{original_img_path}').stem
+            pred_summary_path = Path(f'static/data/{prediction_id}/labels/{split_summary_path.split(".")[0]}.txt')
+
+            logger.info(f'the pred summary exists? {pred_summary_path.exists()}')
+            logger.info(f'the pred summary exists? {pred_summary_path}')
             if pred_summary_path.exists():
                 with open(pred_summary_path) as f:
                     labels = f.read().splitlines()
@@ -84,7 +91,7 @@ def consume():
                         'height': str(float(l[4])),
                     } for l in labels]
 
-                logger.info(f'prediction: {prediction_id}/{original_img_path}. prediction summary:\n\n{labels}')
+                logger.info(f'prediction: {prediction_id}{original_img_path}. prediction summary:\n\n{labels}')
 
                 prediction_summary = {
                     'prediction_id': prediction_id,
@@ -96,15 +103,16 @@ def consume():
                 }
 
                 # TODO store the prediction_summary in a DynamoDB table
-                dynamodb = boto3.resource('dynamodb')
-                table = dynamodb.Table('maayana-aws-project-predictions')
+                dynamodb = boto3.resource('dynamodb', region_name=REGION_NAME)
+                table = dynamodb.Table(DYNAMODB_TABLE)
 
                 table.put_item(
                     Item=prediction_summary
                 )
 
                 # TODO perform a GET request to Polybot to `/results` endpoint ?POST
-                result = requests.post(f'http://polybot:8443/results?predictionId={prediction_id}')
+                result = requests.post(
+                    f'http://maayana-polybot-alb-1158443373.eu-north-1.elb.amazonaws.com:8443/results?predictionId={prediction_id}')
 
             # Delete the message from the queue as the job is considered as DONE
             sqs_client.delete_message(QueueUrl=queue_name, ReceiptHandle=receipt_handle)

@@ -8,6 +8,7 @@ from telebot.types import InputFile
 
 images_bucket = os.environ['BUCKET_NAME']
 queue_name = os.environ['SQS_QUEUE_NAME']
+REGION_NAME = os.environ['REGION_NAME']
 
 class Bot:
 
@@ -21,7 +22,7 @@ class Bot:
         time.sleep(0.5)
 
         # set the webhook URL
-        self.telegram_bot_client.set_webhook(url=f'{telegram_chat_url}/{token}/', timeout=60, certificate=open("MAAYANPUBLIC.PEM", 'r'))
+        self.telegram_bot_client.set_webhook(url=f'{telegram_chat_url}/{token}/', timeout=60, certificate=open("MAAYANPUBLIC.pem",'r'))
 
         logger.info(f'Telegram Bot information\n\n{self.telegram_bot_client.get_me()}')
 
@@ -75,7 +76,7 @@ class ObjectDetectionBot(Bot):
 
         if self.is_current_msg_photo(msg):
             photo_path = self.download_user_photo(msg)
-            sqs_client = boto3.client('sqs', region_name='eu-north-1')
+            sqs_client = boto3.client('sqs', region_name=REGION_NAME)
             chat_id = msg['chat']['id']
 
             # TODO upload the photo to S3
