@@ -27,6 +27,7 @@ class Bot:
         secret_cert = secret["MAAYANPUBLIC.pem"]
         with open('MAAYANPUBLIC.pem', 'w') as file:
             file.write(str(secret_cert))
+            file.close()
         # sets the webhook URL
         self.telegram_bot_client.set_webhook(url=f'{telegram_chat_url}/{token}/', timeout=60, certificate=open('MAAYANPUBLIC.pem', 'r'))
 
