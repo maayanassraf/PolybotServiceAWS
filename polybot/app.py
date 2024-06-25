@@ -9,7 +9,8 @@ app = flask.Flask(__name__)
 
 REGION_NAME = os.environ['REGION_NAME']
 DYNAMODB_TABLE = os.environ['DYNAMODB_TABLE']
-# TODO load TELEGRAM_TOKEN value from Secret Manager
+
+# loads TELEGRAM_TOKEN value from Secret Manager
 secretsmanager = boto3.client('secretsmanager', region_name=REGION_NAME)
 response = secretsmanager.get_secret_value(SecretId='telegram_bot_token')
 secret = json.loads(response['SecretString'])
@@ -35,7 +36,7 @@ def webhook():
 def results():
     prediction_id = request.args.get('predictionId')
 
-    # TODO use the prediction_id to retrieve results from DynamoDB and send to the end-user
+    # uses the prediction_id to retrieve results from DynamoDB and send to the end-user
     dynamodb = boto3.resource('dynamodb', region_name=REGION_NAME)
     table = dynamodb.Table(DYNAMODB_TABLE)
 
