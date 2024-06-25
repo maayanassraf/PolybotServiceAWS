@@ -53,18 +53,19 @@ jobs:
             if [[ $SERVER_IP =~ [0-9] ]]; 
             then 
               # connect to ec2
-              ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${SERVER_IP}
+              ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${SERVER_IP} '
                 # deploys new polybot version
-                docker ps | grep polybot
+                docker ps | grep polybot &&
                 if [ $? -eq 0 ]
                 then
-                  docker stop polybot
-                  docker rm polybot
-                fi
-                docker run -p 8443:8443 --restart always --name polybot $POLYBOT_IMAGE
+                  docker stop polybot &&
+                  docker rm polybot 
+                fi &&
+                docker run -p 8443:8443 --restart always --name polybot $POLYBOT_IMAGE &&
                 if [ $? -ne 0 ]
                 then
                   echo "docker run operation has failed in $SERVER_IP"
                 fi
+              '
             fi;
           done
