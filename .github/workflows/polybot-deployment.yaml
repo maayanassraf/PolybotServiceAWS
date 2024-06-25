@@ -34,10 +34,10 @@ jobs:
         uses: actions/checkout@v2
       - name: Deploy new version
         run: |         
-          POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
           # gets ip from polybot ec2 by their tags.    
           POLYBOT_SERVERS_IP=$(aws ec2 describe-instances  --filters "Name=tag:App,Values=Maayan-polybot" --query 'Reservations[*].Instances[*].[PublicIpAddress]' --output text)
           echo $POLYBOT_SERVERS_IP
+          POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
           # do the needed actions for every ec2 if its on (has public ip)
           for SERVER_IP in $(echo $POLYBOT_SERVERS_IP); 
           do 
