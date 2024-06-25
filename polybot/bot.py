@@ -79,7 +79,7 @@ class ObjectDetectionBot(Bot):
             sqs_client = boto3.client('sqs', region_name=REGION_NAME)
             chat_id = msg['chat']['id']
 
-            # upload the downloaded photo to S3 -
+            # upload the downloaded photo to S3
             s3_client = boto3.client('s3')
             img_name = os.path.basename(photo_path)
             s3_client.upload_file(

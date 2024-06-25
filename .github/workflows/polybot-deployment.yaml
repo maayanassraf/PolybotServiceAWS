@@ -46,7 +46,7 @@ jobs:
           echo $POLYBOT_SERVERS_IP
           
           POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
-          echo $PRIVATE_KEY > private_key && chmod 600 private_key
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           # do the needed actions for every ec2 if its on (has public ip)
           for SERVER_IP in $(echo $POLYBOT_SERVERS_IP); 
           do 
