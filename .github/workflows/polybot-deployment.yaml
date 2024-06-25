@@ -45,7 +45,7 @@ jobs:
           POLYBOT_SERVERS_IP=$(aws ec2 describe-instances  --filters "Name=tag:App,Values=Maayan-polybot" --query 'Reservations[*].Instances[*].[PublicIpAddress]' --output text)
           echo $POLYBOT_SERVERS_IP
           
-          POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
+          export POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
           echo "polybot image - $POLYBOT_IMAGE"
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           # do the needed actions for every ec2 if its on (has public ip)
@@ -54,7 +54,7 @@ jobs:
             if [[ $SERVER_IP =~ [0-9] ]]; 
             then 
               # connect to ec2
-              ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${SERVER_IP} '
+              ssh -o StrictHostKeyChecking=no -o SendEnv=POLYBOT_IMAGE -i private_key ubuntu@${SERVER_IP} '
                 # deploys new polybot version
                 docker ps | grep polybot &&
                 if [ $? -eq 0 ]
