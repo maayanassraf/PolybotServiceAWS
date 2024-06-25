@@ -65,5 +65,6 @@ jobs:
                 if [ $? -ne 0 ]
                 then
                   echo "docker run operation has failed in $SERVER_IP"
+                fi
             fi;
           done
