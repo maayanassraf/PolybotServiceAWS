@@ -54,7 +54,9 @@ jobs:
             if [[ $SERVER_IP =~ [0-9] ]]; 
             then 
               # connect to ec2
-              ssh -o StrictHostKeyChecking=no -o SendEnv=POLYBOT_IMAGE -i private_key ubuntu@${SERVER_IP} '
+              ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${SERVER_IP} '
+                POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
+                echo $POLYBOT_IMAGE
                 # deploys new polybot version
                 docker ps | grep polybot &&
                 if [ $? -eq 0 ]

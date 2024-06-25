@@ -92,7 +92,7 @@ class ObjectDetectionBot(Bot):
                 Filename=f'{photo_path}'
             )
 
-            # sends a job to the SQS queue
+            # sends a job to the SQS queue -
             job_message = {'img_name': img_name, 'chat_id': chat_id}
             job_message = json.dumps(job_message)
             response = sqs_client.send_message(QueueUrl=queue_name, MessageBody=job_message)
