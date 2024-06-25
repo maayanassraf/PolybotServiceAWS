@@ -46,6 +46,7 @@ jobs:
           echo $POLYBOT_SERVERS_IP
           
           POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
+          echo "polybot image - $POLYBOT_IMAGE"
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           # do the needed actions for every ec2 if its on (has public ip)
           for SERVER_IP in $(echo $POLYBOT_SERVERS_IP); 
@@ -61,8 +62,8 @@ jobs:
                   docker stop polybot &&
                   docker rm polybot 
                 fi &&
-                docker run -p 8443:8443 --restart always --name polybot $POLYBOT_IMAGE &&
-                if [ $? -ne 0 ]
+                docker run -p 8443:8443 --restart always --name polybot $POLYBOT_IMAGE
+                && if [ $? -ne 0 ]
                 then
                   echo "docker run operation has failed in $SERVER_IP"
                 fi

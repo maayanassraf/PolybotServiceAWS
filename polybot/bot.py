@@ -23,7 +23,7 @@ class Bot:
         # retrieve the certificate from secretsmanager
         secretsmanager = boto3.client('secretsmanager', region_name=REGION_NAME)
         response = secretsmanager.get_secret_value(SecretId='publickey_cert')
-        secret_cert = json.loads(response['SecretString'])
+        secret_cert = response['SecretString']
 
         # sets the webhook URL
         self.telegram_bot_client.set_webhook(url=f'{telegram_chat_url}/{token}/', timeout=60, certificate=secret_cert)
