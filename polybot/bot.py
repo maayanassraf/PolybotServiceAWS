@@ -20,9 +20,13 @@ class Bot:
         # removes any existing webhooks configured in Telegram servers
         self.telegram_bot_client.remove_webhook()
         time.sleep(0.5)
+        # retrieve the certificate from secretsmanager
+        secretsmanager = boto3.client('secretsmanager', region_name=REGION_NAME)
+        response = secretsmanager.get_secret_value(SecretId='publickey_cert')
+        secret_cert = json.loads(response['SecretString'])
 
         # sets the webhook URL
-        self.telegram_bot_client.set_webhook(url=f'{telegram_chat_url}/{token}/', timeout=60, certificate=open("MAAYANPUBLIC.pem",'r'))
+        self.telegram_bot_client.set_webhook(url=f'{telegram_chat_url}/{token}/', timeout=60, certificate=secret_cert)
 
         logger.info(f'Telegram Bot information\n\n{self.telegram_bot_client.get_me()}')
 
