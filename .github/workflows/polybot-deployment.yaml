@@ -33,6 +33,8 @@ jobs:
       - name: Checkout the repo code
         uses: actions/checkout@v2
       - name: Deploy new version
+        env:
+          AWS_DEFAULT_REGION: eu-north-1
         run: |         
           # gets ip from polybot ec2 by their tags.    
           POLYBOT_SERVERS_IP=$(aws ec2 describe-instances  --filters "Name=tag:App,Values=Maayan-polybot" --query 'Reservations[*].Instances[*].[PublicIpAddress]' --output text)
