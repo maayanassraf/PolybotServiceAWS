@@ -102,7 +102,7 @@ def consume():
                     'chat_id': chat_id
                 }
 
-                # TODO store the prediction_summary in a DynamoDB table
+                # storeS the prediction_summary in a DynamoDB table
                 dynamodb = boto3.resource('dynamodb', region_name=REGION_NAME)
                 table = dynamodb.Table(DYNAMODB_TABLE)
 
