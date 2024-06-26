@@ -32,17 +32,23 @@ jobs:
     steps:
       - name: Checkout the repo code
         uses: actions/checkout@v2
-      - name: Deploy new version
-        env:
-          AWS_DEFAULT_REGION: eu-north-1
-          PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-        run: |         
+      - name: Get Polybot EC2's IP
+        run: |
           # allows running aws commands
           export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
           export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
           
           # gets ip from polybot ec2 by their tags.
-          POLYBOT_SERVERS_IP=$(aws ec2 describe-instances  --filters "Name=tag:App,Values=Maayan-polybot" --query 'Reservations[*].Instances[*].[PublicIpAddress]' --output text)
+          POLYBOT_SERVERS_IP=$(aws ec2 describe-instances  --filters "Name=tag:App,Values=Maayan-polybot" --query 'Reservations[*].Instances[*].[PublicIpAddress]' --output text | grep -v None)
+          # writes the var to github env- for using in another step
+          echo "$POLYBOT_SERVERS_IP" >> "$GITHUB_ENV"
+
+      - name: Deploy new version
+        env:
+          AWS_DEFAULT_REGION: eu-north-1
+          PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+        run: |         
+          
           echo $POLYBOT_SERVERS_IP
           
           export POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
@@ -51,24 +57,22 @@ jobs:
           # do the needed actions for every ec2 if its on (has public ip)
           for SERVER_IP in $(echo $POLYBOT_SERVERS_IP); 
           do 
-            if [[ $SERVER_IP =~ [0-9] ]]; 
-            then 
-              # connect to ec2
-              ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${SERVER_IP} '
-                POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
-                echo $POLYBOT_IMAGE
-                # deploys new polybot version
-                docker ps | grep polybot &&
-                if [ $? -eq 0 ]
-                then
-                  docker stop polybot &&
-                  docker rm polybot 
-                fi &&
-                docker run -d -p 8443:8443 --restart always --name polybot $POLYBOT_IMAGE &&
-                if [ $? -ne 0 ]
-                then
-                  echo "docker run operation has failed in $SERVER_IP"
-                fi
-              '
-            fi;
+            # connect to ec2
+            ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${SERVER_IP} '
+              POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
+              echo $POLYBOT_IMAGE
+              # deploys new polybot version
+              docker ps | grep polybot &&
+              if [ $? -eq 0 ]
+              then
+                docker stop polybot &&
+                docker rm polybot 
+              fi &&
+              docker run -d -p 8443:8443 --restart always --name polybot $POLYBOT_IMAGE &&
+              if [ $? -ne 0 ]
+              then
+                echo "docker run operation has failed in $SERVER_IP"
+              fi &&
+              exit
+            '
           done
