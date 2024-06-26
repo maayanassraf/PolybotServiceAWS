@@ -69,7 +69,6 @@ jobs:
                 then
                   echo "docker run operation has failed in $SERVER_IP"
                 fi
-                exit
               '
             fi;
           done
