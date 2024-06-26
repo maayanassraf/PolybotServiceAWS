@@ -62,7 +62,7 @@ jobs:
 
           sudo usermod -a -G docker ubuntu
 
-          docker run --restart always --name yolo5 $YOLO5_VERSION" | base64)
+          docker run --restart always --name yolo5 $YOLO5_IMAGE" | base64)
 
           
           # creates new launch template
@@ -73,3 +73,4 @@ jobs:
           
           # sets the new launch template as default version
           aws ec2 modify-launch-template --launch-template-id lt-0d51076c34836cbcc --default-version $LT_VERSION
+          
