@@ -64,11 +64,12 @@ jobs:
                   docker stop polybot &&
                   docker rm polybot 
                 fi &&
-                docker run -p 8443:8443 --restart always --name polybot $POLYBOT_IMAGE &&
+                docker run -d -p 8443:8443 --restart always --name polybot $POLYBOT_IMAGE &&
                 if [ $? -ne 0 ]
                 then
                   echo "docker run operation has failed in $SERVER_IP"
                 fi
+                exit
               '
             fi;
           done
