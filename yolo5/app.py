@@ -35,7 +35,7 @@ def consume():
 
             # Receives a URL parameter representing the image to download from S3
             img_name = message['img_name']  # TODO extract from `message`
-            chat_id = message['chat_id']  # TODO extract from `message`
+            chat_id = message['chat_id']
 
             # downloads img_name from S3, store the local image path in original_img_path
             download_path = '/usr/src/app/downloaded_images'
