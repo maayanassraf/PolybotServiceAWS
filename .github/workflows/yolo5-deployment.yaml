@@ -17,8 +17,12 @@ jobs:
       - name: Build and push image
         run: |
           cd yolo5
-          
+               
           # TODO your implementation here....          
+          docker login -u ${{ secrets.DOCKER_REPO_USERNAME }} -p ${{ secrets.DOCKER_REPO_PASSWORD }}
+          YOLO5_IMAGE=maayanassraf/yolo5-aws-project:${{ github.run_number }}
+          docker build -t $YOLO5_IMAGE .
+          docker push $YOLO5_IMAGE
 
   Deploy:
     runs-on: ubuntu-latest
@@ -29,6 +33,41 @@ jobs:
       - name: Checkout the repo code
         uses: actions/checkout@v2
       - name: Deploy new version
-        run: |         
-          # TODO your implementation here....     
-     
+        env:
+          AWS_DEFAULT_REGION: eu-north-1
+        run: |
+          # allows running aws commands
+          export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          
+          YOLO5_IMAGE=maayanassraf/yolo5-aws-project:${{ github.run_number }}
+          # saves user-data as base64
+          
+          DATA_BASE64=$(echo -n "#!/bin/bash
+          # Add Docker's official GPG key:
+          apt-get update
+          apt-get install ca-certificates curl -y
+          install -m 0755 -d /etc/apt/keyrings
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+          chmod a+r /etc/apt/keyrings/docker.asc
+
+          # Add the repository to Apt sources:
+          echo \
+          "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+          $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+          tee /etc/apt/sources.list.d/docker.list > /dev/null
+          apt-get update
+
+          apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+
+          sudo usermod -a -G docker ubuntu
+
+          docker run --restart always --name yolo5 $YOLO5_VERSION" | base64)
+
+          
+          # creates new launch template
+          create-launch-template-version --launch-template-id lt-0d51076c34836cbcc --source-version 6 --launch-template-data \
+          '{"UserData":$DATA_BASE64}'
+        
+          #sets the new launch template as default version
+          aws ec2 modify-launch-template --launch-template-id lt-0d51076c34836cbcc --default-version $Latest
