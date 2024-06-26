@@ -78,6 +78,7 @@ jobs:
           aws ec2 modify-launch-template --launch-template-id lt-0d51076c34836cbcc --default-version $LT_VERSION
           
           # starts instance refresh
-          aws autoscaling start-instance-refresh --auto-scaling-group-name maayana-yolo5-asg —preferences MinHealthyPercentage=90,InstanceWarmup=60
+          aws autoscaling start-instance-refresh --auto-scaling-group-name maayana-yolo5-asg --preferences '{"InstanceWarmup": 400, "MinHealthyPercentage": 50}'
+
           
           
