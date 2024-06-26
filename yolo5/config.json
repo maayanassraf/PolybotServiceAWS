@@ -1,0 +1,16 @@
+{
+  "AutoScalingGroupName": "maayana-yolo5-asg",
+  "DesiredConfiguration": {
+    "LaunchTemplate": {
+      "LaunchTemplateId": "lt-0d51076c34836cbcc",
+      "Version": "$Default"
+    }
+  },
+  "Preferences": {
+    "InstanceWarmup": 60,
+    "MinHealthyPercentage": 50,
+    "AutoRollback": true,
+    "ScaleInProtectedInstances": Ignore,
+    "StandbyInstances": Terminate
+  }
+}

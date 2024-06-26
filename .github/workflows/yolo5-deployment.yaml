@@ -75,3 +75,7 @@ jobs:
           # sets the new launch template as default version
           aws ec2 modify-launch-template --launch-template-id lt-0d51076c34836cbcc --default-version $LT_VERSION
           
+          # starts instance refresh
+          aws autoscaling start-instance-refresh --cli-input-json file://config.json
+          
+          
