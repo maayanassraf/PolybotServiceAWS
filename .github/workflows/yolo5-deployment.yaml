@@ -55,7 +55,7 @@ jobs:
           echo \
             "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
             $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-            tee /etc/apt/sources.list.d/docker.list > /dev/null
+            sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
           apt-get update
 
           apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
@@ -70,7 +70,7 @@ jobs:
           aws ec2 create-launch-template-version --launch-template-id lt-0d51076c34836cbcc --source-version 6 --launch-template-data "UserData=$DATA_BASE64"
           
           # gets the new launch template version
-          LT_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id lt-0d51076c34836cbcc --versions $Latest | jq '.LaunchTemplateVersions[] .VersionNumber' | head -c1)
+          LT_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id lt-0d51076c34836cbcc --versions $Latest | jq '.LaunchTemplateVersions[] .VersionNumber' |  wc -l)
           
           # sets the new launch template as default version
           aws ec2 modify-launch-template --launch-template-id lt-0d51076c34836cbcc --default-version $LT_VERSION
