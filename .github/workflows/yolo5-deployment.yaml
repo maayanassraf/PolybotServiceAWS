@@ -66,7 +66,7 @@ jobs:
 
           
           # creates new launch template
-          create-launch-template-version --launch-template-id lt-0d51076c34836cbcc --source-version 6 --launch-template-data \
+          aws ec2 create-launch-template-version --launch-template-id lt-0d51076c34836cbcc --source-version 6 --launch-template-data \
           '{"UserData":$DATA_BASE64}'
         
           #sets the new launch template as default version

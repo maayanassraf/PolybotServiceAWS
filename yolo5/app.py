@@ -110,7 +110,7 @@ def consume():
                     Item=prediction_summary
                 )
 
-                # performs a POST request to Polybot to `/results` endpoint ?POST
+                # performs a POST request to Polybot to `/results` endpoint
                 result = requests.post(
                     f'http://maayana-polybot-alb-1158443373.eu-north-1.elb.amazonaws.com:8443/results?predictionId={prediction_id}')
 
