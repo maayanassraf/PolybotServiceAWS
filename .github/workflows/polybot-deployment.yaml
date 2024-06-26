@@ -44,6 +44,7 @@ jobs:
           POLYBOT_SERVERS_IP=$(aws ec2 describe-instances  --filters "Name=tag:App,Values=Maayan-polybot" --query 'Reservations[*].Instances[*].[PublicIpAddress]' --output text | grep -v None)
           # writes the var to github env- for using in another step
           echo "$POLYBOT_SERVERS_IP" >> "$GITHUB_ENV"
+          echo "EOF" >> "$GITHUB_ENV"
 
       - name: Deploy new version
         env:
