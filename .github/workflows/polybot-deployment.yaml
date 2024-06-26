@@ -55,7 +55,7 @@ jobs:
           AWS_DEFAULT_REGION: eu-north-1
           PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
         run: |         
-          
+          POLYBOT_SERVERS_IP=${POLYBOT_SERVERS_IP#*:}
           echo $POLYBOT_SERVERS_IP
           
           export POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
