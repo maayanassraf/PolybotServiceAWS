@@ -36,26 +36,32 @@ def webhook():
 def results():
     prediction_id = request.args.get('predictionId')
 
-    # uses the prediction_id to retrieve results from DynamoDB and send to the end-user
-    dynamodb = boto3.resource('dynamodb', region_name=REGION_NAME)
-    table = dynamodb.Table(DYNAMODB_TABLE)
+    if not prediction_id:
+        return "Bad Request", 400
 
-    response = table.get_item(
-        Key={
-            'prediction_id': prediction_id
-        }
-    )
-    prediction = response['Item']
+    try:
+        # uses the prediction_id to retrieve results from DynamoDB and send to the end-user
+        dynamodb = boto3.resource('dynamodb', region_name=REGION_NAME)
+        table = dynamodb.Table(DYNAMODB_TABLE)
 
-    chat_id = prediction['chat_id']
-    labels = prediction['labels']
-    objects = []
-    for label in labels:
-        objects.append(label['class'])
+        response = table.get_item(
+            Key={
+                'prediction_id': prediction_id
+            }
+        )
+        prediction = response['Item']
 
-    counter = dict.fromkeys(objects, 0)
-    for val in objects:
-        counter[val] += 1
+        chat_id = prediction['chat_id']
+        labels = prediction['labels']
+        objects = []
+        for label in labels:
+            objects.append(label['class'])
+
+        counter = dict.fromkeys(objects, 0)
+        for val in objects:
+            counter[val] += 1
+    except:
+        return "Server Internal Error", 500
 
     text_results = f'Detected Objects: \n{counter}'
 

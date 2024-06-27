@@ -86,16 +86,23 @@ class ObjectDetectionBot(Bot):
             # upload the downloaded photo to S3
             s3_client = boto3.client('s3')
             img_name = os.path.basename(photo_path)
-            s3_client.upload_file(
-                Bucket=f'{images_bucket}',
-                Key=f'images/{img_name}',
-                Filename=f'{photo_path}'
-            )
+
+            try:
+                s3_client.upload_file(
+                    Bucket=f'{images_bucket}',
+                    Key=f'images/{img_name}',
+                    Filename=f'{photo_path}'
+                )
+            except:
+                logger.error('An error occurred while trying to download image from s3')
 
             # sends a job to the SQS queue
             job_message = {'img_name': img_name, 'chat_id': chat_id}
             job_message = json.dumps(job_message)
-            response = sqs_client.send_message(QueueUrl=queue_name, MessageBody=job_message)
+            try:
+                response = sqs_client.send_message(QueueUrl=queue_name, MessageBody=job_message)
+            except:
+                logger.error('An error occurred while trying to send message to queue')
 
             # sends message to the Telegram end-user (e.g. Your image is being processed. Please wait...)
             self.send_text((msg['chat']['id']), text=f'Your image is being processed. Please wait...')

@@ -24,7 +24,7 @@ def consume():
         try:
             response = sqs_client.receive_message(QueueUrl=queue_name, MaxNumberOfMessages=1, WaitTimeSeconds=5)
         except:
-            logger.info(f'An error occurred while reading messages from queue')
+            logger.error(f'An error occurred while reading messages from queue')
             exit(1)
 
         if 'Messages' in response:
@@ -71,19 +71,21 @@ def consume():
             predicted_img_path = Path(f'static/data/{prediction_id}{original_img_path}')
 
             # Uploads the predicted image (predicted_img_path) to S3
-            s3_client.put_object(
-                Body=f'{predicted_img_path}',
-                Bucket=f'{images_bucket}',
-                Key=f'predicted_images/{img_name}'
-            )
-            logger.info(f'prediction: {prediction_id}{original_img_path}. upload to s3 completed.')
+            try:
+                s3_client.put_object(
+                    Body=f'{predicted_img_path}',
+                    Bucket=f'{images_bucket}',
+                    Key=f'predicted_images/{img_name}'
+                )
+                logger.info(f'prediction: {prediction_id}{original_img_path}. upload to s3 completed.')
+            except:
+                logger.error(f'An error occurred while trying to upload image to s3')
+                exit(1)
 
             # Parse prediction labels and create a summary
             split_summary_path = Path(f'static/data/{prediction_id}/labels{original_img_path}').stem
             pred_summary_path = Path(f'static/data/{prediction_id}/labels/{split_summary_path.split(".")[0]}.txt')
 
-            logger.info(f'the pred summary exists? {pred_summary_path.exists()}')
-            logger.info(f'the pred summary exists? {pred_summary_path}')
             if pred_summary_path.exists():
                 with open(pred_summary_path) as f:
                     labels = f.read().splitlines()
@@ -107,20 +109,32 @@ def consume():
                     'chat_id': chat_id
                 }
 
-                # stores the prediction_summary in a DynamoDB table
-                dynamodb = boto3.resource('dynamodb', region_name=REGION_NAME)
-                table = dynamodb.Table(DYNAMODB_TABLE)
+                try:
+                    # stores the prediction_summary in a DynamoDB table
+                    dynamodb = boto3.resource('dynamodb', region_name=REGION_NAME)
+                    table = dynamodb.Table(DYNAMODB_TABLE)
 
-                table.put_item(
-                    Item=prediction_summary
-                )
+                    table.put_item(
+                        Item=prediction_summary
+                    )
+                except:
+                    logger.error(f'An error occurred while trying to store prediction at DynamoDB table')
+                    exit(1)
 
-                # performs a POST request to Polybot to `/results` endpoint
-                result = requests.post(
-                    f'http://maayana-polybot-alb-1158443373.eu-north-1.elb.amazonaws.com:8443/results?predictionId={prediction_id}')
+                try:
+                    # performs a POST request to Polybot to `/results` endpoint
+                    result = requests.post(
+                        f'http://maayana-polybot-alb-1158443373.eu-north-1.elb.amazonaws.com:8443/results?predictionId={prediction_id}')
+                except:
+                    logger.error(f'An error occurred while trying to access polybot "/results" endpoint')
+                    exit(1)
 
-            # Delete the message from the queue as the job is considered as DONE
-            sqs_client.delete_message(QueueUrl=queue_name, ReceiptHandle=receipt_handle)
+            try:
+                # Delete the message from the queue as the job is considered as DONE
+                sqs_client.delete_message(QueueUrl=queue_name, ReceiptHandle=receipt_handle)
+            except:
+                logger.error(f'An error occurred while trying to delete message from queue')
+                exit(1)
 
 
 if __name__ == "__main__":
