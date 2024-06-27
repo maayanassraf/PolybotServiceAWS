@@ -21,7 +21,11 @@ with open("data/coco128.yaml", "r") as stream:
 
 def consume():
     while True:
-        response = sqs_client.receive_message(QueueUrl=queue_name, MaxNumberOfMessages=1, WaitTimeSeconds=5)
+        try:
+            response = sqs_client.receive_message(QueueUrl=queue_name, MaxNumberOfMessages=1, WaitTimeSeconds=5)
+        except:
+            logger.info(f'An error occurred while reading messages from queue')
+            exit(1)
 
         if 'Messages' in response:
             message = response['Messages'][0]['Body']
