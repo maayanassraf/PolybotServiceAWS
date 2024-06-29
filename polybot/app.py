@@ -60,13 +60,13 @@ def results():
         counter = dict.fromkeys(objects, 0)
         for val in objects:
             counter[val] += 1
+        text_results = f'Detected Objects: \n{counter}'
+
+        bot.send_text(chat_id, text_results)
+        return 'Ok'
+
     except:
         return "Server Internal Error", 500
-
-    text_results = f'Detected Objects: \n{counter}'
-
-    bot.send_text(chat_id, text_results)
-    return 'Ok'
 
 
 @app.route(f'/loadTest/', methods=['POST'])

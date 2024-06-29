@@ -10,6 +10,7 @@ ENV BUCKET_NAME=maayana-aws-project-bucket
 ENV SQS_QUEUE_NAME=maayana-aws-project-queue
 ENV REGION_NAME=eu-north-1
 ENV DYNAMODB_TABLE=maayana-aws-project-predictions
+ENV ALB_URL=maayana-polybot-alb-1158443373.eu-north-1.elb.amazonaws.com:8443
 
 COPY . .
 

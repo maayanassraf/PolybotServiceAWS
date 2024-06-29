@@ -12,6 +12,7 @@ images_bucket = os.environ['BUCKET_NAME']
 queue_name = os.environ['SQS_QUEUE_NAME']
 REGION_NAME = os.environ['REGION_NAME']
 DYNAMODB_TABLE = os.environ['DYNAMODB_TABLE']
+ALB_URL = os.environ['ALB_URL']
 
 sqs_client = boto3.client('sqs', region_name=REGION_NAME)
 
@@ -21,11 +22,7 @@ with open("data/coco128.yaml", "r") as stream:
 
 def consume():
     while True:
-        try:
-            response = sqs_client.receive_message(QueueUrl=queue_name, MaxNumberOfMessages=1, WaitTimeSeconds=5)
-        except:
-            logger.error(f'An error occurred while reading messages from queue')
-            exit(1)
+        response = sqs_client.receive_message(QueueUrl=queue_name, MaxNumberOfMessages=1, WaitTimeSeconds=5)
 
         if 'Messages' in response:
             message = response['Messages'][0]['Body']
@@ -80,7 +77,6 @@ def consume():
                 logger.info(f'prediction: {prediction_id}{original_img_path}. upload to s3 completed.')
             except:
                 logger.error(f'An error occurred while trying to upload image to s3')
-                exit(1)
 
             # Parse prediction labels and create a summary
             split_summary_path = Path(f'static/data/{prediction_id}/labels{original_img_path}').stem
@@ -119,22 +115,19 @@ def consume():
                     )
                 except:
                     logger.error(f'An error occurred while trying to store prediction at DynamoDB table')
-                    exit(1)
 
                 try:
                     # performs a POST request to Polybot to `/results` endpoint
                     result = requests.post(
-                        f'http://maayana-polybot-alb-1158443373.eu-north-1.elb.amazonaws.com:8443/results?predictionId={prediction_id}')
+                        f'http://{ALB_URL}/results?predictionId={prediction_id}')
                 except:
                     logger.error(f'An error occurred while trying to access polybot "/results" endpoint')
-                    exit(1)
 
             try:
                 # Delete the message from the queue as the job is considered as DONE
                 sqs_client.delete_message(QueueUrl=queue_name, ReceiptHandle=receipt_handle)
             except:
                 logger.error(f'An error occurred while trying to delete message from queue')
-                exit(1)
 
 
 if __name__ == "__main__":
