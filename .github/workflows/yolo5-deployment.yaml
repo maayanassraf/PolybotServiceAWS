@@ -44,7 +44,7 @@ jobs:
           
           YOLO5_IMAGE=maayanassraf/yolo5-aws-project:${{ github.run_number }}
           
-          # Saves new user-data as base64 (includes new yolo5 image)
+          # Saves new user-data as base64 (includes new yolo5 image) for using in new launch template version
           
           DATA_BASE64=$(echo -n "#!/bin/bash
           # Add Docker's official GPG key:

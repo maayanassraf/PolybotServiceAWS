@@ -40,12 +40,13 @@ jobs:
           export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
           export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
           
-          # gets public ip from polybot ec2 by their tags (Gets only from running EC2s).
+          # Gets public ip from polybot ec2 by their tags (Gets only from running EC2s).
           POLYBOT_SERVERS_IP=$(aws ec2 describe-instances --filters "Name=tag:App,Values=Maayan-polybot"\
           --query 'Reservations[*].Instances[*].[PublicIpAddress]'\
           --output text | grep -v None)
+          echo "The IPs of running Polybot EC2's are- $POLYBOT_SERVERS_IP"
           
-          # Writes the var to github env- for using in another step
+          # Writes the POLYBOT_SERVERS_IP to github env- for using in another step
           {
           echo 'POLYBOT_SERVERS_IP<<EOF'
           echo "$POLYBOT_SERVERS_IP"
@@ -59,7 +60,7 @@ jobs:
         run: |         
           # Gets from env only the IPs
           POLYBOT_SERVERS_IP=${POLYBOT_SERVERS_IP#*:}
-          echo "The IPs of Polybot EC2's are- $POLYBOT_SERVERS_IP"
+          echo "The IPs of running Polybot EC2's are- $POLYBOT_SERVERS_IP"
           
           export POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
           echo "polybot image - $POLYBOT_IMAGE"
