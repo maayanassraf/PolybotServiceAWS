@@ -41,8 +41,8 @@ jobs:
           export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
           
           # Gets public ip from polybot ec2 by their tags (Gets only from running EC2s).
-          POLYBOT_SERVERS_IP=$(aws ec2 describe-instances --filters "Name=tag:App,Values=Maayan-polybot"\
-          --query 'Reservations[*].Instances[*].[PublicIpAddress]'\
+          POLYBOT_SERVERS_IP=$(aws ec2 describe-instances --filters "Name=tag:App,Values=Maayan-polybot" \
+          --query 'Reservations[*].Instances[*].[PublicIpAddress]' \
           --output text | grep -v None)
           echo "The IPs of running Polybot EC2's are- $POLYBOT_SERVERS_IP"
           

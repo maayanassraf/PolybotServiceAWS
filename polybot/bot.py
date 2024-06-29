@@ -101,8 +101,9 @@ class ObjectDetectionBot(Bot):
             job_message = json.dumps(job_message)
             try:
                 response = sqs_client.send_message(QueueUrl=queue_name, MessageBody=job_message)
+                # sends message to the Telegram end-user (e.g. Your image is being processed. Please wait...)
+                self.send_text((msg['chat']['id']), text=f'Your image is being processed. Please wait...')
             except:
                 logger.error('An error occurred while trying to send message to queue')
+                self.send_text((msg['chat']['id']), text=f'Something went wrong. Please try again...')
 
-            # sends message to the Telegram end-user (e.g. Your image is being processed. Please wait...)
-            self.send_text((msg['chat']['id']), text=f'Your image is being processed. Please wait...')
