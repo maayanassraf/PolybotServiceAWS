@@ -18,7 +18,7 @@ jobs:
         run: |
           cd polybot
           
-          # TODO your implementation here....
+          # Login to docker & Building new image
           docker login -u ${{ secrets.DOCKER_REPO_USERNAME }} -p ${{ secrets.DOCKER_REPO_PASSWORD }}
           POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
           docker build -t $POLYBOT_IMAGE .
@@ -36,14 +36,16 @@ jobs:
         env:
           AWS_DEFAULT_REGION: eu-north-1
         run: |
-          # allows running aws commands
+          # Allows running aws commands
           export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
           export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
           
-          # gets ip from polybot ec2 by their tags.
-          POLYBOT_SERVERS_IP=$(aws ec2 describe-instances  --filters "Name=tag:App,Values=Maayan-polybot" --query 'Reservations[*].Instances[*].[PublicIpAddress]' --output text | grep -v None)
-          # writes the var to github env- for using in another step
-          echo $GITHUB_ENV
+          # gets public ip from polybot ec2 by their tags (Gets only from running EC2s).
+          POLYBOT_SERVERS_IP=$(aws ec2 describe-instances --filters "Name=tag:App,Values=Maayan-polybot"\
+          --query 'Reservations[*].Instances[*].[PublicIpAddress]'\
+          --output text | grep -v None)
+          
+          # Writes the var to github env- for using in another step
           {
           echo 'POLYBOT_SERVERS_IP<<EOF'
           echo "$POLYBOT_SERVERS_IP"
@@ -55,26 +57,31 @@ jobs:
           AWS_DEFAULT_REGION: eu-north-1
           PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
         run: |         
+          # Gets from env only the IPs
           POLYBOT_SERVERS_IP=${POLYBOT_SERVERS_IP#*:}
-          echo $POLYBOT_SERVERS_IP
+          echo "The IPs of Polybot EC2's are- $POLYBOT_SERVERS_IP"
           
           export POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
           echo "polybot image - $POLYBOT_IMAGE"
+          
+          # Creates from secret the private key as file.
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          # do the needed actions for every ec2 if its on (has public ip)
+          
+          # Do the needed actions for every ec2 if its on (has public ip)
           for SERVER_IP in $(echo $POLYBOT_SERVERS_IP); 
           do 
-            # connect to ec2
+            # Connects to ec2
             ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${SERVER_IP} <<EOF
               POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
               echo $POLYBOT_IMAGE
-              # deploys new polybot version
+              # Deploys new polybot version and stops older version (if exists)
               docker ps | grep polybot 
               if [ $? -eq 0 ]
               then
                 docker stop polybot 
                 docker rm polybot 
               fi 
+              # Starts new docker container from new image
               docker run -d -p 8443:8443 --restart always --name polybot $POLYBOT_IMAGE
               if [ $? -ne 0 ]
               then

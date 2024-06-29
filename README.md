@@ -85,8 +85,8 @@ There are 2 separated GitHub Action workflows for the Polybot and the Yolo5 micr
   1. **Build** new polybot microservice.
   2. **Deploy** the new version to required instances.
 - In The Build phase, it builds and pushes new version of Docker images to DockerHub, using the DOCKER_REPO_USERNAME and DOCKER_REPO_PASSWORD secrets.
-- In The Deployment phase, it gets the polybot EC2's Public IP's by their tags (the EC2 most be running for this pase), 
-using the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY secrets for accessing the AWS account.
+- In The Deployment phase, it gets the polybot EC2's Public IP's by their tags (the EC2 most be running for updating the new docker container on it),
+it is using the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY secrets for accessing the AWS account.
 - Afterward, it connects to the polybot EC2's by the IP which received as described above, and the EC2_SSH_PRIVATE_KEY provided as secret.
 Then, it stops running container of polybot (if exists) and running new polybot container with the new previous built image.
 
