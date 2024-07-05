@@ -56,7 +56,7 @@ jobs:
             if [ "$state" != "running" ]; 
             then
               echo "Starting instance..."
-              aws ec2 start-instances--instance-ids $instance_id
+              aws ec2 start-instances --instance-ids $instance_id
   
               # Waits until the instance is running
               aws ec2 wait instance-running --instance-ids $instance_id
