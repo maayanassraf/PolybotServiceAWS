@@ -1,0 +1,12 @@
+region = "eu-north-1"
+az_1   = "eu-north-1a"
+az_2   = "eu-north-1b"
+env    = "dev"
+polybot_ami_id = "ami-07c8c1b18ca66bb07"
+polybot_instance_type = "t3.micro"
+owner = "maayana"
+zone_id = "Z01194351X4YEXPPLZ8MN"
+yolo5_ami_id = "ami-0705384c0b33c194c"
+yolo5_instance_type = "t3.medium"
+key = "maayana-aug23"
+main-region = true

@@ -9,13 +9,16 @@ app = flask.Flask(__name__)
 
 REGION_NAME = os.environ['REGION_NAME']
 DYNAMODB_TABLE = os.environ['DYNAMODB_TABLE']
+SECRET_ID = os.environ['SECRET_ID']
 
 # loads TELEGRAM_TOKEN value from Secret Manager
 secretsmanager = boto3.client('secretsmanager', region_name=REGION_NAME)
-response = secretsmanager.get_secret_value(SecretId='telegram_bot_token')
-secret = json.loads(response['SecretString'])
+response = secretsmanager.get_secret_value(SecretId=SECRET_ID)
+secret = response['SecretString']
 
-TELEGRAM_TOKEN = secret["telegram_bot_token"]
+TELEGRAM_TOKEN = secret
+
+# TELEGRAM_TOKEN = os.environ['TF_VAR_botToken']
 
 TELEGRAM_APP_URL = os.environ['TELEGRAM_APP_URL']
 

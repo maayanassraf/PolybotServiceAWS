@@ -1,0 +1,30 @@
+name: Polybot Infrastructure Terraform Main
+
+on:
+  workflow_dispatch:
+    inputs:
+      us-east-1:
+        description: 'N.Virginia (us-east-1)'
+        required: false
+        type: boolean
+      eu-north-1:
+        description: 'Stockholm (eu-north-1)'
+        required: false
+        type: boolean
+
+jobs:
+  us-east-1:
+    if: ${{ github.event.inputs.us-east-1 == 'true' }}
+    uses: ./.github/workflows/infra-provisioning-region.yaml
+    with:
+      region-code: us-east-1
+    secrets:
+      TELEGRAM_TOKEN: ${{ secrets.US_EAST_1_TELEGRAM_TOKEN }}
+
+  eu-north-1:
+    if: ${{ github.event.inputs.eu-north-1 == 'true' }}
+    uses: ./.github/workflows/infra-provisioning-region.yaml
+    with:
+      region-code: eu-north-1
+    secrets:
+      TELEGRAM_TOKEN: ${{ secrets.EU_NORTH_1_TELEGRAM_TOKEN }}

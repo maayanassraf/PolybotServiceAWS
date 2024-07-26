@@ -21,12 +21,12 @@ class Bot:
         self.telegram_bot_client.remove_webhook()
         time.sleep(0.5)
         # retrieve the certificate from secretsmanager
-        secretsmanager = boto3.client('secretsmanager', region_name=REGION_NAME)
-        response = secretsmanager.get_secret_value(SecretId='public_key_cert')
-        secret_cert = response['SecretString']
+        # secretsmanager = boto3.client('secretsmanager', region_name=REGION_NAME)
+        # response = secretsmanager.get_secret_value(SecretId='public_key_cert')
+        # secret_cert = response['SecretString']
 
         # sets the webhook URL
-        self.telegram_bot_client.set_webhook(url=f'{telegram_chat_url}/{token}/', timeout=60, certificate=secret_cert)
+        self.telegram_bot_client.set_webhook(url=f'{telegram_chat_url}/{token}/', timeout=60)
 
         logger.info(f'Telegram Bot information\n\n{self.telegram_bot_client.get_me()}')
 
