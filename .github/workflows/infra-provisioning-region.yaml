@@ -61,7 +61,6 @@ jobs:
     with:
       region-code: eu-north-1
     secrets:
-      TELEGRAM_TOKEN: ${{ secrets.EU_NORTH_1_TELEGRAM_TOKEN }}
       PRIVATE_KEY: ${{ secrets.EU_NORTH_1_PRIVATE_KEY }}
 
 #  Yolo5-eu-north-1:
