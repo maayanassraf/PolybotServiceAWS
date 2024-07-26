@@ -80,4 +80,4 @@ jobs:
       region-code: us-east-1
       launch_template_id: $${{ needs.Terraform.outputs.lt-id }}
     secrets:
-      EC2_SSH_PRIVATE_KEY: ${{ secrets.US_EAST_1_PRIVATE_KEY }}
+      PRIVATE_KEY: ${{ secrets.US_EAST_1_PRIVATE_KEY }}
