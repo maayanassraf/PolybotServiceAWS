@@ -10,7 +10,7 @@ on:
         required: false
         type: string
     secrets:
-      EC2_SSH_PRIVATE_KEY:
+      PRIVATE_KEY:
         required: true
 
 jobs:
@@ -88,7 +88,7 @@ jobs:
       - name: Deploy new version
         env:
           AWS_DEFAULT_REGION: ${{ inputs.region-code }}
-          PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         run: |         
           # Gets from env only the IPs
           POLYBOT_SERVERS_IP=${POLYBOT_SERVERS_IP#*:}
