@@ -5,12 +5,12 @@ terraform {
       version = ">=5.0"
     }
   }
-#
-#  backend "s3" {
-#    bucket = "maayana-tfstate-bucket"
-#    key    = "tfstate.json"
-#    region = "eu-north-1"
-#  }
+
+  backend "s3" {
+    bucket = "maayana-tfstate-bucket"
+    key    = "tfstate.json"
+    region = "eu-north-1"
+  }
 
   required_version = ">= 1.7.0"
 }
