@@ -69,24 +69,24 @@ jobs:
 #          docker run --restart always --name yolo5 $YOLO5_IMAGE" | base64)
 
           # Gets the last launch template version (for using as source version at new launch template
-          OLD_LT_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id lt-0d51076c34836cbcc \
-          --versions $Latest | jq '.LaunchTemplateVersions[] .VersionNumber' |  wc -l) 
-          echo "The last launch template version is $OLD_LT_VERSION (before creating new launch template)"
-          
-          # Creates new launch template, based on the last launch template exists.
-          aws ec2 create-launch-template-version --launch-template-id lt-0d51076c34836cbcc \
-          --source-version $OLD_LT_VERSION --launch-template-data "UserData=$DATA_BASE64"
-          
-          # Gets the new launch template version
-          LT_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id lt-0d51076c34836cbcc \
-          --versions $Latest | jq '.LaunchTemplateVersions[] .VersionNumber' |  wc -l)
-          echo "The new launch template version is $LT_VERSION (after creating new launch template)"
-          
-          # Sets the new launch template as default version
-          aws ec2 modify-launch-template --launch-template-id lt-0d51076c34836cbcc --default-version $LT_VERSION
-
-          # Starts an instance refresh for updating existing instances
-          aws autoscaling start-instance-refresh --auto-scaling-group-name maayana-yolo5-asg --preferences '{"InstanceWarmup": 300, "MinHealthyPercentage": 50}'
+#          OLD_LT_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id lt-0d51076c34836cbcc \
+#          --versions $Latest | jq '.LaunchTemplateVersions[] .VersionNumber' |  wc -l)
+#          echo "The last launch template version is $OLD_LT_VERSION (before creating new launch template)"
+#
+#          # Creates new launch template, based on the last launch template exists.
+#          aws ec2 create-launch-template-version --launch-template-id lt-0d51076c34836cbcc \
+#          --source-version $OLD_LT_VERSION --launch-template-data "UserData=$DATA_BASE64"
+#
+#          # Gets the new launch template version
+#          LT_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id lt-0d51076c34836cbcc \
+#          --versions $Latest | jq '.LaunchTemplateVersions[] .VersionNumber' |  wc -l)
+#          echo "The new launch template version is $LT_VERSION (after creating new launch template)"
+#
+#          # Sets the new launch template as default version
+#          aws ec2 modify-launch-template --launch-template-id lt-0d51076c34836cbcc --default-version $LT_VERSION
+#
+#          # Starts an instance refresh for updating existing instances
+#          aws autoscaling start-instance-refresh --auto-scaling-group-name maayana-yolo5-asg --preferences '{"InstanceWarmup": 300, "MinHealthyPercentage": 50}'
 
 
 

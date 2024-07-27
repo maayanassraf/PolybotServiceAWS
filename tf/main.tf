@@ -70,10 +70,10 @@ resource "aws_sqs_queue" "tf-maayana-project-queue" {
   }
 }
 
-resource "aws_key_pair" "key-pair" {
-  key_name   = "tf-${var.owner}-key-${var.region}"
-  public_key = file("rsa.pub")
-}
+#resource "aws_key_pair" "key-pair" {
+#  key_name   = "tf-${var.owner}-key-${var.region}"
+#  public_key = file("rsa.pub")
+#}
 
 module "polybot" {
   source = "./modules/polybot"
@@ -88,7 +88,7 @@ module "polybot" {
   images_bucket_arn     = aws_s3_bucket.tf-maayana-images-bucket.arn
   dynamo_db_arn         = aws_dynamodb_table.tf-maayana-predictions-dynamodb-table.arn
   sqs_arn               = aws_sqs_queue.tf-maayana-project-queue.arn
-  key_name              = aws_key_pair.key-pair.key_name
+  key_name              = "123"
   botToken              = var.botToken
   key                   = var.key
   main-region           = var.main-region
@@ -107,7 +107,7 @@ module "yolo5" {
   images_bucket_arn     = aws_s3_bucket.tf-maayana-images-bucket.arn
   dynamo_db_arn         = aws_dynamodb_table.tf-maayana-predictions-dynamodb-table.arn
   sqs_arn               = aws_sqs_queue.tf-maayana-project-queue.arn
-  key_name              = aws_key_pair.key-pair.key_name
+  key_name              = "123"
   key                   = var.key
   main-region           = var.main-region
 }
