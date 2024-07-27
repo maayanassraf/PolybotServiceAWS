@@ -74,13 +74,3 @@ variable "owner" {
   description = "declares the project owner"
   type        = string
 }
-
-variable "AWS_ACCESS_KEY_ID" {
-  description = "access key id"
-  type        = string
-}
-
-variable "AWS_SECRET_ACCESS_KEY" {
-  description = "secret access key"
-  type        = string
-}
