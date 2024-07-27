@@ -2,8 +2,8 @@
 resource "aws_instance" "app_server" {
   count = length(var.subnet_ids)
 
-  ami                         = var.polybot_ami_id
-  instance_type               = var.polybot_instance_type
+  ami                         = var.ami_id
+  instance_type               = data.aws_ec2_instance_types.polybot_instance_types.instance_types[0]
   vpc_security_group_ids      = [aws_security_group.tf-maayana-polybot-sg.id]
   subnet_id                   = var.subnet_ids[count.index]
   associate_public_ip_address = true
@@ -14,6 +14,13 @@ resource "aws_instance" "app_server" {
   tags = {
     Name = "${var.owner}-polybot-ec2"
     Terraform = "true"
+  }
+}
+
+data "aws_ec2_instance_types" "polybot_instance_types" {
+  filter {
+    name   = "instance-type"
+    values = ["t2.micro", "t3.micro"]
   }
 }
 
@@ -274,10 +281,14 @@ resource "aws_lb_target_group_attachment" "tg-attachment" {
   port             = 8443
 }
 
+data "aws_route53_zone" "hosted_zone_id" {
+  name         = var.hosted_zone_name
+}
+
 resource "aws_route53_record" "alb_record" {
   name    = "maayana-polybot-${var.region}"
   type    = "A"
-  zone_id = var.zone_id
+  zone_id = data.aws_route53_zone.hosted_zone_id.zone_id
 
   alias {
     evaluate_target_health = false
@@ -323,7 +334,7 @@ resource "aws_route53_record" "cert_validation" {
   name            = tolist(aws_acm_certificate.alb_cert.domain_validation_options)[0].resource_record_name
   records         = [ tolist(aws_acm_certificate.alb_cert.domain_validation_options)[0].resource_record_value ]
   type            = tolist(aws_acm_certificate.alb_cert.domain_validation_options)[0].resource_record_type
-  zone_id         = var.zone_id
+  zone_id         = data.aws_route53_zone.hosted_zone_id.zone_id
   ttl             = 60
 }
 
@@ -331,13 +342,3 @@ resource "aws_acm_certificate_validation" "validate_alb_cert" {
   certificate_arn         = aws_acm_certificate.alb_cert.arn
   validation_record_fqdns = [ aws_route53_record.cert_validation.fqdn ]
 }
-
-#data "aws_ami" "ubuntu_ami" {
-#  most_recent = true
-#  owners      = ["099720109477"]  # Canonical owner ID for Ubuntu AMIs
-#
-#  filter {
-#    name   = "name"
-#    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
-#  }
-#}

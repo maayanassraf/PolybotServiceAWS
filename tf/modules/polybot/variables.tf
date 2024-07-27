@@ -1,10 +1,6 @@
-variable "polybot_instance_type" {
-  description = "the instance type of the specific region"
-  type        = string
-}
 
-variable "polybot_ami_id" {
-  description = "the ami id of the specific region for polybot"
+variable "ami_id" {
+  description = "the ami id of the specific region"
   type        = string
 }
 
@@ -16,11 +12,6 @@ variable "region" {
 variable "subnet_ids" {
   description = "Public subnets ids from created VPC"
   type        = list(string)
-}
-
-variable "zone_id" {
-  description = "hosted zone ID"
-  type        = string
 }
 
 variable "vpc_id" {
@@ -65,5 +56,10 @@ variable "main-region" {
 
 variable "owner" {
   description = "declares the project owner"
+  type        = string
+}
+
+variable "hosted_zone_name" {
+  description = "hosted zone name"
   type        = string
 }

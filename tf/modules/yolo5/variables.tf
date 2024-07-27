@@ -1,25 +1,11 @@
-variable "yolo5_instance_type" {
-  description = "the instance type of the specific region- for yolo5"
-  type        = string
-}
 
-variable "yolo5_ami_id" {
-  description = "the ami id of the specific region for yolo5"
+variable "ami_id" {
+  description = "the ami id of the specific region"
   type        = string
 }
 
 variable "vpc_id" {
   description = "the created vpc ID"
-  type        = string
-}
-
-variable "az_1" {
-description = "first availability zone"
-type        = string
-}
-
-variable "az_2" {
-  description = "second availability zone"
   type        = string
 }
 

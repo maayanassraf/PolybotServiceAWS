@@ -17,7 +17,10 @@ terraform {
 
 provider "aws" {
   region  = var.region
-  skip_metadata_api_check = true
+}
+
+data "aws_availability_zones" "available" {
+  state = "available"
 }
 
 module "app_vpc" {
@@ -27,7 +30,7 @@ module "app_vpc" {
   name = "tf-${var.owner}-vpc"
   cidr = var.vpc_cidr
 
-  azs                 = [var.az_1, var.az_2]
+  azs                 = [data.aws_availability_zones.available.names[0], data.aws_availability_zones.available.names[1]]
   public_subnets      = var.vpc_public_subnets
 
   enable_nat_gateway = false
@@ -76,14 +79,22 @@ resource "aws_sqs_queue" "tf-maayana-project-queue" {
 #  public_key = file("rsa.pub")
 #}
 
+data "aws_ami" "ubuntu_ami" {
+  most_recent = true
+  owners      = ["099720109477"]  # Canonical owner ID for Ubuntu AMIs
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
+  }
+}
+
 module "polybot" {
   source = "./modules/polybot"
 
-  polybot_ami_id        = var.polybot_ami_id
-  polybot_instance_type = var.polybot_instance_type
+  ami_id                = data.aws_ami.ubuntu_ami.id
   region                = var.region
   owner                 = var.owner
-  zone_id               = var.zone_id
   vpc_id                = module.app_vpc.vpc_id
   subnet_ids            = module.app_vpc.public_subnets
   images_bucket_arn     = aws_s3_bucket.tf-maayana-images-bucket.arn
@@ -93,17 +104,15 @@ module "polybot" {
   botToken              = var.botToken
   key                   = var.key
   main-region           = var.main-region
+  hosted_zone_name      = var.hosted_zone_name
  }
 
 module "yolo5" {
   source = "./modules/yolo5"
 
-  yolo5_instance_type   = var.yolo5_instance_type
-  yolo5_ami_id          = var.yolo5_ami_id
+  ami_id                = data.aws_ami.ubuntu_ami.id
   vpc_id                = module.app_vpc.vpc_id
   owner                 = var.owner
-  az_1                  = var.az_1
-  az_2                  = var.az_2
   subnet_ids            = module.app_vpc.public_subnets
   images_bucket_arn     = aws_s3_bucket.tf-maayana-images-bucket.arn
   dynamo_db_arn         = aws_dynamodb_table.tf-maayana-predictions-dynamodb-table.arn

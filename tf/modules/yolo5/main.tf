@@ -1,7 +1,7 @@
 resource "aws_launch_template" "tf-maayana-yolo5-lt" {
   name                 = "tf-${var.owner}-yolo5-lt"
-  image_id             = var.yolo5_ami_id
-  instance_type        = var.yolo5_instance_type
+  image_id             = var.ami_id
+  instance_type        = data.aws_ec2_instance_types.yolo5_instance_types.instance_types[0]
   user_data            = filebase64("install_docker.sh")
   key_name             = var.key
 
@@ -15,6 +15,13 @@ resource "aws_launch_template" "tf-maayana-yolo5-lt" {
   }
   iam_instance_profile {
     name = var.main-region == true ? aws_iam_instance_profile.yolo5_instance_profile[0].name : "yolo5_instance_profile"
+  }
+}
+
+data "aws_ec2_instance_types" "yolo5_instance_types" {
+  filter {
+    name   = "instance-type"
+    values = ["t2.medium", "t3.medium"]
   }
 }
 

@@ -1,12 +1,6 @@
 region = "us-east-1"
-az_1   = "us-east-1a"
-az_2   = "us-east-1b"
 env    = "dev"
-polybot_ami_id = "ami-04a81a99f5ec58529"
-polybot_instance_type = "t2.micro"
 owner = "maayana"
-zone_id = "Z01194351X4YEXPPLZ8MN"
-yolo5_ami_id = "ami-04a81a99f5ec58529"
-yolo5_instance_type = "t2.medium"
 key = "maayana-virginia"
 main-region = false
+hosted_zone_name = "int-devops.click"
