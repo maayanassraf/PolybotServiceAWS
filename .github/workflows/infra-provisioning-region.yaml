@@ -14,22 +14,19 @@ jobs:
   Terraform:
     runs-on: ubuntu-latest
     env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ inputs.region-code }}
     defaults:
       run:
         working-directory: ./tf  # The directory containing your Terraform configuration files
-    outputs:
-      lt-id: ${{ steps.apply.outputs.LT_ID }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v1
         with:
-          terraform_version: 1.7.0
+          terraform_version: 1.2.0
 
       - name: Terraform init
         run: terraform init
@@ -41,22 +38,11 @@ jobs:
         run: terraform validate
 
       - name: Terraform plan
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: |
+        run: | 
           export TF_VAR_botToken=${{ secrets.TELEGRAM_TOKEN }}
           terraform plan -var-file=region.${{ inputs.region-code }}.tfvars
 
       - name: Terraform apply
-        id: apply
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           export TF_VAR_botToken=${{ secrets.TELEGRAM_TOKEN }}
           terraform apply -auto-approve -var-file=region.${{ inputs.region-code }}.tfvars
-
-      - name: Calls Terraform outputs
-        run: |
-          echo LT_ID=$(terraform output launch_template_id) >> $GITHUB_OUTPUT
