@@ -43,9 +43,8 @@ jobs:
 
       - name: Terraform plan
         run: | 
-          export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-          export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          export AWS_DEFAULT_REGION=${{ inputs.region-code }}
+          export TF_VAR_AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          export TF_VAR_AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
           export TF_VAR_botToken=${{ secrets.TELEGRAM_TOKEN }}
           terraform plan -var-file=region.${{ inputs.region-code }}.tfvars
 
