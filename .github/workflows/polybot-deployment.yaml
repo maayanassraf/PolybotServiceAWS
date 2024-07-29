@@ -25,7 +25,7 @@ jobs:
 
   eu-north-1:
     if: ${{ github.event.inputs.eu-north-1 == 'true' }}
-    uses: ./.github/workflows/infra-provisioning-region.yaml
+    uses: ./.github/workflows/polybot-deployment-region.yaml
     with:
       region-code: eu-north-1
     secrets:
