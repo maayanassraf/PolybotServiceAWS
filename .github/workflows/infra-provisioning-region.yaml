@@ -34,6 +34,7 @@ jobs:
       - name: Terraform init
         run: |
           aws --version
+          aws sts get-caller-identity
           terraform init
 
       - name: Terraform workspace select
