@@ -25,26 +25,24 @@ on:
 #        type: string
 
 jobs:
-  Create-env-File:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the repo code
-        uses: actions/checkout@v2
-      - name: Setup Terraform for needed env
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_wrapper: false
-          terraform_version: 1.7.0
-      - name: Get needed outputs from tf
-        run: |
-          cd tf
-          TEST_VAR=$(terraform output launch_template_id)
-          echo $TEST_VAR
+#  Create-env-File:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout the repo code
+#        uses: actions/checkout@v2
+#      - name: Setup Terraform for needed env
+#        uses: hashicorp/setup-terraform@v3
+#        with:
+#          terraform_wrapper: false
+#          terraform_version: 1.7.0
+#      - name: Get needed outputs from tf
+#        run: |
+#          cd tf
+#          TEST_VAR=$(terraform output launch_template_id)
+#          echo $TEST_VAR
 
   Deploy:
     runs-on: ubuntu-latest
-    needs:
-      - Create-env-File
     steps:
       - name: Checkout the repo code
         uses: actions/checkout@v2
@@ -102,7 +100,8 @@ jobs:
         run: |         
           cd polybot
           
-          # crete .env file with needed values.
+          # create .env file with needed values.
+          echo 123 > .env
           
           # Gets from env only the IPs
           POLYBOT_SERVERS_IP=${POLYBOT_SERVERS_IP#*:}
