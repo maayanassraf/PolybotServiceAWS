@@ -34,6 +34,7 @@ jobs:
       - name: Terraform init
         run: |
           aws --version
+          printenv
           aws sts get-caller-identity
           terraform init
 
