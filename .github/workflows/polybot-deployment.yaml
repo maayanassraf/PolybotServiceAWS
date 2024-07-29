@@ -1,124 +1,34 @@
-name: Polybot Microservice Deployment
+name: Polybot Microservice Deployment Main
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
-      region-code:
-        required: true
-        type: string
-      launch_template_id:
+      us-east-1:
+        description: 'N.Virginia (us-east-1)'
         required: false
-        type: string
-    secrets:
-      PRIVATE_KEY:
-        required: true
+        type: boolean
+      eu-north-1:
+        description: 'Stockholm (eu-north-1)'
+        required: false
+        type: boolean
 
 jobs:
-  Build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the repo code
-        uses: actions/checkout@v2
+  us-east-1:
+    if: ${{ github.event.inputs.us-east-1 == 'true' }}
+    uses: ./.github/workflows/polybot-deployment-region.yaml
+    with:
+      region-code: us-east-1
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      PRIVATE_KEY: ${{ secrets.EU_NORTH_1_PRIVATE_KEY }}
 
-      - name: Build and push image
-        run: |
-          echo ${{ inputs.launch_template_id }}
-          cd polybot
-          
-          # Login to docker & Building new image
-          docker login -u ${{ secrets.DOCKER_REPO_USERNAME }} -p ${{ secrets.DOCKER_REPO_PASSWORD }}
-          POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
-          docker build -t $POLYBOT_IMAGE .
-          docker push $POLYBOT_IMAGE
-
-  Deploy:
-    runs-on: ubuntu-latest
-    needs:
-      - Build
-
-    steps:
-      - name: Checkout the repo code
-        uses: actions/checkout@v2
-      - name: Get Polybot EC2's IP
-        env:
-          AWS_DEFAULT_REGION: ${{ inputs.region-code }}
-        run: |
-          # Allows running aws commands
-          export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-          export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          
-          # Gets instances id from polybot ec2 by their tags
-          INSTANCES_IDS=$(aws ec2 describe-instances --filters "Name=tag:App,Values=maayana-polybot-ec2" \
-            --query 'Reservations[*].Instances[*].{InstanceId:InstanceId}' \
-            --output text)
-          
-          for instance_id in $INSTANCES_IDS;
-          do
-            state=$(aws ec2 describe-instances --filters "Name=instance-id,Values=$instance_id" \
-              --query 'Reservations[*].Instances[*].{State:State.Name}' \
-              --output text)
-            
-            echo "The instance - $instance_id is in state - $state"
-            
-            if [ "$state" != "running" ]; 
-            then
-              echo "Starting instance..."
-              aws ec2 start-instances --instance-ids $instance_id
-  
-              # Waits until the instance is running
-              aws ec2 wait instance-running --instance-ids $instance_id
-            else
-              echo "Instance already running, skipping..."
-            fi
-          done
-          
-          # Gets public ip from polybot ec2 by their tags (Gets only from running EC2s).
-          POLYBOT_SERVERS_IP=$(aws ec2 describe-instances --filters "Name=tag:App,Values=maayana-polybot-ec2" \
-          --query 'Reservations[*].Instances[*].[PublicIpAddress]' \
-          --output text | grep -v None)
-          echo "The IPs of running Polybot EC2's are- $POLYBOT_SERVERS_IP"
-          
-          # Writes the POLYBOT_SERVERS_IP to github env- for using in another step
-          {
-          echo 'POLYBOT_SERVERS_IP<<EOF'
-          echo "$POLYBOT_SERVERS_IP"
-          echo EOF
-          } >> "$GITHUB_ENV"
-
-      - name: Deploy new version
-        env:
-          AWS_DEFAULT_REGION: ${{ inputs.region-code }}
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-        run: |         
-          # Gets from env only the IPs
-          POLYBOT_SERVERS_IP=${POLYBOT_SERVERS_IP#*:}
-          echo "The IPs of running Polybot EC2's are- $POLYBOT_SERVERS_IP"
-          
-          export POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
-          echo "polybot image - $POLYBOT_IMAGE"
-          
-          # Creates from secret the private key as file.
-          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          
-          # Do the needed actions for every ec2 if its on (has public ip)
-          for SERVER_IP in $(echo $POLYBOT_SERVERS_IP); 
-          do 
-            # Connects to ec2
-            ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${SERVER_IP} <<EOF
-              POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
-              echo $POLYBOT_IMAGE
-              # Deploys new polybot version and stops older version (if exists)
-              docker ps | grep polybot 
-              if [ $? -eq 0 ]
-              then
-                docker stop polybot 
-                docker rm polybot 
-              fi 
-              # Starts new docker container from new image
-              docker run -d -p 8443:8443 --restart always --name polybot $POLYBOT_IMAGE
-              if [ $? -ne 0 ]
-              then
-                echo "docker run operation has failed in $SERVER_IP"
-              fi
-          EOF
-          done
+  eu-north-1:
+    if: ${{ github.event.inputs.eu-north-1 == 'true' }}
+    uses: ./.github/workflows/infra-provisioning-region.yaml
+    with:
+      region-code: eu-north-1
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      PRIVATE_KEY: ${{ secrets.EU_NORTH_1_PRIVATE_KEY }}

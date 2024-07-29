@@ -1,0 +1,26 @@
+name: Polybot Microservice Build
+
+on:
+  push:
+    paths:
+      - 'polybot/**'
+    branches:
+      - main
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repo code
+        uses: actions/checkout@v2
+
+      - name: Build and push image
+        run: |
+          cd polybot
+          
+          # Login to docker & Building new image
+          docker login -u ${{ secrets.DOCKER_REPO_USERNAME }} -p ${{ secrets.DOCKER_REPO_PASSWORD }}
+          BASE_POLYBOT_IMAGE=maayanassraf/polybot-aws-project
+          POLYBOT_IMAGE_TAGGED=maayanassraf/polybot-aws-project:v1.${{ github.run_number }}
+          docker build -t $POLYBOT_IMAGE_TAGGED -t $BASE_POLYBOT_IMAGE:latest .
+          docker push $BASE_POLYBOT_IMAGE --all-tags
