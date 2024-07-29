@@ -32,7 +32,9 @@ jobs:
           terraform_version: 1.7.0
 
       - name: Terraform init
-        run: terraform init
+        run: |
+        aws --version
+        terraform init
 
       - name: Terraform workspace select
         run: terraform workspace select ${{ inputs.region-code }} || terraform workspace new ${{ inputs.region-code }}
