@@ -41,5 +41,6 @@ jobs:
           # select workspace or create if needed
           terraform workspace select ${{ matrix.region }}  || terraform workspace new ${{ matrix.region }}
 
+          export TF_VAR_botToken=bla-bla
           # tf destroy
           terraform destroy -auto-approve -var-file=region.${{ matrix.region }}.tfvars
