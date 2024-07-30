@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "tf-botToken" {
-  name = "tf-telegram-botToken"
+  name = "tf-telegram-botToken-${var.region}"
   recovery_window_in_days = 0
 }
 

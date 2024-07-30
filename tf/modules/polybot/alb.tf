@@ -1,12 +1,12 @@
 resource "aws_lb" "alb" {
-  name               = "tf-maayana-polybot-lb"
+  name               = "tf-${var.owner}-polybot-lb"
   load_balancer_type = "application"
   subnets            = var.subnet_ids
   security_groups    = [aws_security_group.tf-maayana-polybot-alb-sg.id]
 }
 
 resource "aws_alb_target_group" "polybot-tg" {
-  name     = "tf-maayana-polybot-tg"
+  name     = "tf-${var.owner}-polybot-tg"
   port     = 8443
   protocol = "HTTP"
   vpc_id   = var.vpc_id
@@ -55,7 +55,7 @@ resource "aws_lb_listener" "alb_http" {
 }
 
 resource "aws_route53_record" "alb_record" {
-  name    = "maayana-polybot-${var.region}"
+  name    = "${var.owner}-polybot-${var.region}"
   type    = "A"
   zone_id = data.aws_route53_zone.hosted_zone_id.zone_id
 

@@ -1,5 +1,5 @@
 resource "aws_security_group" "tf-maayana-polybot-alb-sg" {
-  name        = "tf-maayana-polybot-alb-sg"
+  name        = "tf-${var.owner}-polybot-alb-sg"
   description = "SG for polybot alb access"
   vpc_id = var.vpc_id
 

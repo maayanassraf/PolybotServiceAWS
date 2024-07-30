@@ -97,11 +97,20 @@ jobs:
         env:
           AWS_DEFAULT_REGION: ${{ inputs.region-code }}
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-        run: |         
-          cd polybot
+        run: |
+          cd tf
+          # Gets from tfvars file the owner name
+          OWNER=$(cat region.$AWS_DEFAULT_REGION.tfvars | grep owner |  grep -o '".*"' | sed 's/"//g')
+          
+          cd ../polybot
           
           # create .env file with needed values.
-          echo 123 > .env
+          echo -e "TELEGRAM_APP_URL=https://$OWNER-polybot-$AWS_DEFAULT_REGION.int-devops.click:443
+          BUCKET_NAME=tf-$OWNER-images-bucket-$AWS_DEFAULT_REGION
+          SQS_QUEUE_NAME=tf-$OWNER-project-queue
+          REGION_NAME=$AWS_DEFAULT_REGION
+          DYNAMODB_TABLE=tf-$OWNER-predictions-dynamodb-table
+          SECRET_ID=tf-telegram-botToken-$AWS_DEFAULT_REGION" | tr -d ' ' > .env
           
           # Gets from env only the IPs
           POLYBOT_SERVERS_IP=${POLYBOT_SERVERS_IP#*:}
@@ -123,6 +132,7 @@ jobs:
               POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
               echo $POLYBOT_IMAGE
               # Deploys new polybot version and stops older version (if exists)
+              cd polybot
               docker ps | grep polybot 
               if [ $? -eq 0 ]
               then
@@ -130,7 +140,7 @@ jobs:
                 docker rm polybot 
               fi 
               # Starts new docker container from new image
-              docker run -d -p 8443:8443 --restart always --name polybot $POLYBOT_IMAGE
+              docker run -d -p 8443:8443 --restart always --env-file .env --name polybot $POLYBOT_IMAGE
               if [ $? -ne 0 ]
               then
                 echo "docker run operation has failed in $SERVER_IP"

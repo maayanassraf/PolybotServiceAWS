@@ -6,7 +6,7 @@ resource "aws_iam_instance_profile" "polybot_instance_profile" {
 
 resource "aws_iam_role" "tf-maayana-polybot-role" {
   count = var.main-region == true ? 1 : 0
-  name                = "tf-maayana-polybot-role"
+  name                = "tf-${var.owner}-polybot-role"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -26,7 +26,7 @@ EOF
 
 resource "aws_iam_policy" "tf-maayana-polybot-secrets-manager" {
   count = var.main-region == true ? 1 : 0
-  name        = "tf-maayana-polybot-secrets-manager"
+  name        = "tf-${var.owner}-polybot-secrets-manager"
   path        = "/"
   description = "allows to polybot ec2s required access to secrets manager"
 
@@ -85,7 +85,7 @@ resource "aws_iam_policy" "tf-maayana-polybot-s3" {
 
 resource "aws_iam_policy" "tf-maayana-polybot-sqs" {
   count = var.main-region == true ? 1 : 0
-  name        = "tf-maayana-polybot-sqs"
+  name        = "tf-${var.owner}-polybot-sqs"
   path        = "/"
   description = "allows to polybot ec2s required access to sqs"
 
@@ -116,7 +116,7 @@ resource "aws_iam_policy" "tf-maayana-polybot-sqs" {
 
 resource "aws_iam_policy" "tf-maayana-polybot-dynamo" {
   count = var.main-region == true ? 1 : 0
-  name        = "tf-maayana-polybot-dynamo"
+  name        = "tf-${var.owner}-polybot-dynamo"
   path        = "/"
   description = "allows to polybot ec2s required access to dynamo"
 
