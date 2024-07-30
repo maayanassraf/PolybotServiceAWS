@@ -5,13 +5,15 @@ resource "aws_launch_template" "tf-maayana-yolo5-lt" {
   user_data            = filebase64("install_docker.sh")
   key_name             = var.key
 
-  tags_specifications = {
+  tag_specifications {
     resource_type = "instance"
+
     tags = {
       Name      = "${var.owner}-yolo5-ec2"
       Terraform = "true"
     }
   }
+
   network_interfaces {
     security_groups = [aws_security_group.tf-maayana-yolo5-sg.id]
     associate_public_ip_address = true
