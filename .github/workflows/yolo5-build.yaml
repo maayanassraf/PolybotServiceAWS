@@ -1,0 +1,26 @@
+name: Yolo5 Microservice Build
+
+on:
+  push:
+    paths:
+      - 'yolo5/**'
+    branches:
+      - main
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repo code
+        uses: actions/checkout@v2
+
+      - name: Build and push image
+        run: |
+          cd yolo5
+               
+          # Login to docker & Building new image          
+          docker login -u ${{ secrets.DOCKER_REPO_USERNAME }} -p ${{ secrets.DOCKER_REPO_PASSWORD }}
+          BASE_YOLO5_IMAGE=maayanassraf/yolo5-aws-project
+          YOLO5_IMAGE_TAGGED=$BASE_YOLO5_IMAGE:v1.${{ github.run_number }}
+          docker build -t $YOLO5_IMAGE_TAGGED $BASE_YOLO5_IMAGE:latest .
+          docker push $BASE_YOLO5_IMAGE --all-tags

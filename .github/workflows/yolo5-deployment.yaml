@@ -1,92 +1,34 @@
-name: Yolo5 Microservice Deployment
+name: Yolo5 Microservice Deployment Main
 
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
-      region-code:
-        required: true
-        type: string
+      us-east-1:
+        description: 'N.Virginia (us-east-1)'
+        required: false
+        type: boolean
+      eu-north-1:
+        description: 'Stockholm (eu-north-1)'
+        required: false
+        type: boolean
 
 jobs:
-  Build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the repo code
-        uses: actions/checkout@v2
+  us-east-1:
+    if: ${{ github.event.inputs.us-east-1 == 'true' }}
+    uses: ./.github/workflows/polybot-deployment-region.yaml
+    with:
+      region-code: us-east-1
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      PRIVATE_KEY: ${{ secrets.US_EAST_1_PRIVATE_KEY }}
 
-      - name: Build and push image
-        run: |
-          cd yolo5
-               
-          # Login to docker & Building new image          
-          docker login -u ${{ secrets.DOCKER_REPO_USERNAME }} -p ${{ secrets.DOCKER_REPO_PASSWORD }}
-          YOLO5_IMAGE=maayanassraf/yolo5-aws-project:${{ github.run_number }}
-          docker build -t $YOLO5_IMAGE .
-          docker push $YOLO5_IMAGE
-
-  Deploy:
-    runs-on: ubuntu-latest
-    needs:
-      - Build
-
-    steps:
-      - name: Checkout the repo code
-        uses: actions/checkout@v2
-      - name: Deploy new version
-        env:
-          AWS_DEFAULT_REGION: ${{ inputs.region-code }}
-        run: |
-          cd yolo5
-          
-          # Allows running aws commands
-          export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-          export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          
-          YOLO5_IMAGE=maayanassraf/yolo5-aws-project:${{ github.run_number }}
-
-#          # Saves new user-data as base64 (includes new yolo5 image) for using in new launch template version
-#
-#          DATA_BASE64=$(echo -n "#!/bin/bash
-#          # Add Docker's official GPG key:
-#          sudo apt-get update
-#          sudo apt-get install ca-certificates curl -y
-#          install -m 0755 -d /etc/apt/keyrings
-#          curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-#          chmod a+r /etc/apt/keyrings/docker.asc
-#
-#          # Add the repository to Apt sources:
-#          echo \
-#            "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-#            $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-#            sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-#          sudo apt-get update
-#
-#          sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
-#
-#          sudo usermod -a -G docker ubuntu
-#          newgrp docker
-#
-#          docker run --restart always --name yolo5 $YOLO5_IMAGE" | base64)
-
-          # Gets the last launch template version (for using as source version at new launch template
-#          OLD_LT_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id lt-0d51076c34836cbcc \
-#          --versions $Latest | jq '.LaunchTemplateVersions[] .VersionNumber' |  wc -l)
-#          echo "The last launch template version is $OLD_LT_VERSION (before creating new launch template)"
-#
-#          # Creates new launch template, based on the last launch template exists.
-#          aws ec2 create-launch-template-version --launch-template-id lt-0d51076c34836cbcc \
-#          --source-version $OLD_LT_VERSION --launch-template-data "UserData=$DATA_BASE64"
-#
-#          # Gets the new launch template version
-#          LT_VERSION=$(aws ec2 describe-launch-template-versions --launch-template-id lt-0d51076c34836cbcc \
-#          --versions $Latest | jq '.LaunchTemplateVersions[] .VersionNumber' |  wc -l)
-#          echo "The new launch template version is $LT_VERSION (after creating new launch template)"
-#
-#          # Sets the new launch template as default version
-#          aws ec2 modify-launch-template --launch-template-id lt-0d51076c34836cbcc --default-version $LT_VERSION
-#
-#          # Starts an instance refresh for updating existing instances
-#          aws autoscaling start-instance-refresh --auto-scaling-group-name maayana-yolo5-asg --preferences '{"InstanceWarmup": 300, "MinHealthyPercentage": 50}'
-
-
-
+  eu-north-1:
+    if: ${{ github.event.inputs.eu-north-1 == 'true' }}
+    uses: ./.github/workflows/polybot-deployment-region.yaml
+    with:
+      region-code: eu-north-1
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      PRIVATE_KEY: ${{ secrets.EU_NORTH_1_PRIVATE_KEY }}
