@@ -15,7 +15,7 @@ on:
 jobs:
   us-east-1:
     if: ${{ github.event.inputs.us-east-1 == 'true' }}
-    uses: ./.github/workflows/polybot-deployment-region.yaml
+    uses: ./.github/workflows/yolo5-deployment-region.yaml
     with:
       region-code: us-east-1
     secrets:
@@ -25,7 +25,7 @@ jobs:
 
   eu-north-1:
     if: ${{ github.event.inputs.eu-north-1 == 'true' }}
-    uses: ./.github/workflows/polybot-deployment-region.yaml
+    uses: ./.github/workflows/yolo5-deployment-region.yaml
     with:
       region-code: eu-north-1
     secrets:
