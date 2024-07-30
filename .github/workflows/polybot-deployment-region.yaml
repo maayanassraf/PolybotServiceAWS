@@ -105,7 +105,7 @@ jobs:
           # Gets from tfvars file the owner name
           OWNER=$(cat region.$AWS_DEFAULT_REGION.tfvars | grep owner |  grep -o '".*"' | sed 's/"//g')
           
-          cd ../polybot
+          cd ..
           
           # create .env file with needed values.
           echo -e "TELEGRAM_APP_URL=https://$OWNER-polybot-$AWS_DEFAULT_REGION.int-devops.click:443
@@ -129,10 +129,10 @@ jobs:
           for SERVER_IP in $(echo $POLYBOT_SERVERS_IP); 
           do
             # Copies .env file to ec2
-            scp -o StrictHostKeyChecking=no -i private_key .env ubuntu@${SERVER_IP}:/home/ubuntu/polybot
+            scp -o StrictHostKeyChecking=no -i private_key .env ubuntu@${SERVER_IP}:/home/ubuntu/
             # Connects to ec2
             ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${SERVER_IP} <<EOF
-              POLYBOT_IMAGE=maayanassraf/polybot-aws-project:${{ github.run_number }}
+              POLYBOT_IMAGE=maayanassraf/polybot-aws-project:latest
               echo $POLYBOT_IMAGE
               # Deploys new polybot version and stops older version (if exists)
               cd polybot
