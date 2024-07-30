@@ -108,6 +108,12 @@ jobs:
             ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${SERVER_IP} <<EOF
               YOLO5_IMAGE=maayanassraf/yolo5-aws-project:latest
               echo $YOLO5_IMAGE
+              # Deletes old latest image (if exists)
+              docker image ls | grep maayanassraf/yolo5-aws-project | grep latest
+              if [ $? -eq 0 ]
+              then
+                docker image rm maayanassraf/yolo5-aws-project:latest
+              fi 
               # Deploys new polybot version and stops older version (if exists)
               docker ps | grep yolo5 
               if [ $? -eq 0 ]
@@ -117,11 +123,12 @@ jobs:
               fi 
               # Starts new docker container from new image
               docker run -d --restart always --env-file .env --name yolo5 $YOLO5_IMAGE
+              # Verify container's health
+              docker ps | grep yolo5 | grep Up
               if [ $? -ne 0 ]
               then
                 echo "docker run operation has failed in $SERVER_IP"
               fi
           EOF
           done
-
 

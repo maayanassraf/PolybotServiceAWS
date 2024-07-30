@@ -134,6 +134,12 @@ jobs:
             ssh -o StrictHostKeyChecking=no -i private_key ubuntu@${SERVER_IP} <<EOF
               POLYBOT_IMAGE=maayanassraf/polybot-aws-project:latest
               echo $POLYBOT_IMAGE
+              # Deletes old latest image (if exists)
+              docker image ls | grep maayanassraf/polybot-aws-project | grep latest
+              if [ $? -eq 0 ]
+              then
+                docker image rm maayanassraf/polybot-aws-project:latest
+              fi 
               # Deploys new polybot version and stops older version (if exists)
               docker ps | grep polybot 
               if [ $? -eq 0 ]
@@ -143,6 +149,8 @@ jobs:
               fi 
               # Starts new docker container from new image
               docker run -d -p 8443:8443 --restart always --env-file .env --name polybot $POLYBOT_IMAGE
+              # Verify container's health
+              docker ps | grep polybot | grep Up
               if [ $? -ne 0 ]
               then
                 echo "docker run operation has failed in $SERVER_IP"

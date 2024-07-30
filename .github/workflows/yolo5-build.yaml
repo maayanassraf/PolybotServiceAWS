@@ -22,5 +22,5 @@ jobs:
           docker login -u ${{ secrets.DOCKER_REPO_USERNAME }} -p ${{ secrets.DOCKER_REPO_PASSWORD }}
           BASE_YOLO5_IMAGE=maayanassraf/yolo5-aws-project
           YOLO5_IMAGE_TAGGED=$BASE_YOLO5_IMAGE:v1.${{ github.run_number }}
-          docker build -t $YOLO5_IMAGE_TAGGED $BASE_YOLO5_IMAGE:latest .
+          docker build -t $YOLO5_IMAGE_TAGGED -t $BASE_YOLO5_IMAGE:latest .
           docker push $BASE_YOLO5_IMAGE --all-tags
