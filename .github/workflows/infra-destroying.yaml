@@ -22,7 +22,7 @@ jobs:
       matrix:
         region:
           - us-east-1
-          - eu-central-1
+          - eu-north-1
     steps:
       - name: Checkout code
         uses: actions/checkout@v2

@@ -139,6 +139,7 @@ jobs:
               if [ $? -eq 0 ]
               then
                 docker image rm maayanassraf/polybot-aws-project:latest
+                echo "latest image has deleted"
               fi 
               # Deploys new polybot version and stops older version (if exists)
               docker ps | grep polybot 
