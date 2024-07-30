@@ -5,6 +5,14 @@ resource "aws_launch_template" "tf-maayana-yolo5-lt" {
   user_data            = filebase64("install_docker.sh")
   key_name             = var.key
 
+  block_device_mappings {
+    device_name = "/dev/sda1"
+
+    ebs {
+      volume_size = 20
+    }
+  }
+
   tag_specifications {
     resource_type = "instance"
 
