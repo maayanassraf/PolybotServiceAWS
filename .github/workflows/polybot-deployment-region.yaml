@@ -135,7 +135,6 @@ jobs:
               POLYBOT_IMAGE=maayanassraf/polybot-aws-project:latest
               echo $POLYBOT_IMAGE
               # Deploys new polybot version and stops older version (if exists)
-              cd polybot
               docker ps | grep polybot 
               if [ $? -eq 0 ]
               then
