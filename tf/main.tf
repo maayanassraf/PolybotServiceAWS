@@ -53,7 +53,7 @@ data "aws_ami" "ubuntu_ami" {
 }
 
 module "resources" {
-  source = "modules/general-resources"
+  source = "./modules/general-resources"
 
   region = var.region
   owner  = var.owner
@@ -61,7 +61,7 @@ module "resources" {
 }
 
 module "polybot" {
-  source = "modules/polybot"
+  source = "./modules/polybot"
 
   ami_id                = data.aws_ami.ubuntu_ami.id
   region                = var.region
@@ -78,7 +78,7 @@ module "polybot" {
  }
 
 module "yolo5" {
-  source = "modules/yolo5"
+  source = "./modules/yolo5"
 
   ami_id                = data.aws_ami.ubuntu_ami.id
   vpc_id                = module.app_vpc.vpc_id
