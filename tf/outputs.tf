@@ -1,17 +1,14 @@
-output "launch_template_id" {
-  value = module.yolo5.launch_template_id
-}
 
 output "project_bucket_name" {
-  value = aws_s3_bucket.tf-maayana-images-bucket.bucket
+  value = module.resources.s3_bucket_name
 }
 
 output "project_sqs_name" {
-  value = aws_sqs_queue.tf-maayana-project-queue.name
+  value = module.resources.sqs_name
 }
 
 output "project_dynamodb_table_name" {
-  value = aws_dynamodb_table.tf-maayana-predictions-dynamodb-table.name
+  value = module.resources.dynamodb_table_name
 }
 
 output "project_telegram_token_secret_id" {
