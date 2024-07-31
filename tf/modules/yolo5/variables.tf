@@ -29,11 +29,6 @@ variable "sqs_arn" {
   type        = string
 }
 
-variable "key_name" {
-  description = "aws key name"
-  type        = string
-}
-
 variable "key" {
   description = "key name for the specific region"
   type        = string

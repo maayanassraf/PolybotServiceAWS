@@ -36,48 +36,11 @@ module "app_vpc" {
   enable_nat_gateway = false
 
   tags = {
-    Name        = "maayana-vpc-tf"
+    Name        = "tf-${var.owner}-vpc"
     Env         = var.env
     Terraform   = true
   }
 }
-
-resource "aws_s3_bucket" "tf-maayana-images-bucket" {
-  bucket = "tf-${var.owner}-images-bucket-${var.region}"
-  tags = {
-    Name        = "tf-maayana-images-bucket"
-    Env         = var.env
-    Terraform   = true
-  }
-  force_destroy = true
-}
-
-resource "aws_dynamodb_table" "tf-maayana-predictions-dynamodb-table" {
-  name           = "tf-${var.owner}-predictions-dynamodb-table"
-  billing_mode   = "PROVISIONED"
-  read_capacity  = 1
-  write_capacity = 1
-  hash_key       = "prediction_id"
-
-  attribute {
-    name = "prediction_id"
-    type = "S"
-  }
-}
-resource "aws_sqs_queue" "tf-maayana-project-queue" {
-  name                      = "tf-${var.owner}-project-queue"
-  message_retention_seconds = 86400
-  sqs_managed_sse_enabled = true
-
-  tags = {
-    Environment = var.env
-  }
-}
-
-#resource "aws_key_pair" "key-pair" {
-#  key_name   = "tf-${var.owner}-key-${var.region}"
-#  public_key = file("rsa.pub")
-#}
 
 data "aws_ami" "ubuntu_ami" {
   most_recent = true
@@ -89,18 +52,25 @@ data "aws_ami" "ubuntu_ami" {
   }
 }
 
+module "resources" {
+  source = "modules/general-resources"
+
+  region = var.region
+  owner  = var.owner
+  env    = var.env
+}
+
 module "polybot" {
-  source = "./modules/polybot"
+  source = "modules/polybot"
 
   ami_id                = data.aws_ami.ubuntu_ami.id
   region                = var.region
   owner                 = var.owner
   vpc_id                = module.app_vpc.vpc_id
   subnet_ids            = module.app_vpc.public_subnets
-  images_bucket_arn     = aws_s3_bucket.tf-maayana-images-bucket.arn
-  dynamo_db_arn         = aws_dynamodb_table.tf-maayana-predictions-dynamodb-table.arn
-  sqs_arn               = aws_sqs_queue.tf-maayana-project-queue.arn
-  key_name              = "123"
+  images_bucket_arn     = module.resources.s3_bucket_arn
+  dynamo_db_arn         = module.resources.dynamodb_table_arn
+  sqs_arn               = module.resources.sqs_arn
   botToken              = var.botToken
   key                   = var.key
   main-region           = var.main-region
@@ -108,18 +78,15 @@ module "polybot" {
  }
 
 module "yolo5" {
-  source = "./modules/yolo5"
+  source = "modules/yolo5"
 
   ami_id                = data.aws_ami.ubuntu_ami.id
   vpc_id                = module.app_vpc.vpc_id
   owner                 = var.owner
   subnet_ids            = module.app_vpc.public_subnets
-  images_bucket_arn     = aws_s3_bucket.tf-maayana-images-bucket.arn
-  dynamo_db_arn         = aws_dynamodb_table.tf-maayana-predictions-dynamodb-table.arn
-  sqs_arn               = aws_sqs_queue.tf-maayana-project-queue.arn
-  key_name              = "123"
+  images_bucket_arn     = module.resources.s3_bucket_arn
+  dynamo_db_arn         = module.resources.dynamodb_table_arn
+  sqs_arn               = module.resources.sqs_arn
   key                   = var.key
   main-region           = var.main-region
 }
-
-#lt_id = module.yolo5.launch_template_id

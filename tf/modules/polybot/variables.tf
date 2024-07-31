@@ -34,11 +34,6 @@ variable "sqs_arn" {
   type        = string
 }
 
-variable "key_name" {
-  description = "aws key name"
-  type        = string
-}
-
 variable "botToken" {
   description = "bot token value"
   type        = string
