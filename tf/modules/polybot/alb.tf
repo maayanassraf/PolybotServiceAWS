@@ -2,7 +2,7 @@ resource "aws_lb" "alb" {
   name               = "tf-${var.owner}-polybot-lb"
   load_balancer_type = "application"
   subnets            = var.subnet_ids
-  security_groups    = [aws_security_group.tf-maayana-polybot-alb-sg.id]
+  security_groups    = [aws_security_group.tf-polybot-alb-sg.id]
 }
 
 resource "aws_alb_target_group" "polybot-tg" {

@@ -1,10 +1,10 @@
 resource "aws_iam_instance_profile" "yolo5_instance_profile" {
   count = var.main-region == true ? 1 : 0
   name = "yolo5_instance_profile"
-  role = aws_iam_role.tf-maayana-yolo5-role[count.index].name
+  role = aws_iam_role.tf-yolo5-role[count.index].name
 }
 
-resource "aws_iam_role" "tf-maayana-yolo5-role" {
+resource "aws_iam_role" "tf-yolo5-role" {
   count = var.main-region == true ? 1 : 0
   name                = "tf-${var.owner}-yolo5-role"
   assume_role_policy = <<EOF
@@ -21,10 +21,10 @@ resource "aws_iam_role" "tf-maayana-yolo5-role" {
   ]
 }
 EOF
-  managed_policy_arns = [aws_iam_policy.tf-maayana-yolo5-s3[count.index].arn, aws_iam_policy.tf-maayana-yolo5-sqs[count.index].arn, aws_iam_policy.tf-maayana-yolo5-dynamo[count.index].arn]
+  managed_policy_arns = [aws_iam_policy.tf-yolo5-s3[count.index].arn, aws_iam_policy.tf-yolo5-sqs[count.index].arn, aws_iam_policy.tf-yolo5-dynamo[count.index].arn]
 }
 
-resource "aws_iam_policy" "tf-maayana-yolo5-s3" {
+resource "aws_iam_policy" "tf-yolo5-s3" {
   count = var.main-region == true ? 1 : 0
   name        = "tf-${var.owner}-yolo5-s3"
   path        = "/"
@@ -57,7 +57,7 @@ resource "aws_iam_policy" "tf-maayana-yolo5-s3" {
   })
 }
 
-resource "aws_iam_policy" "tf-maayana-yolo5-sqs" {
+resource "aws_iam_policy" "tf-yolo5-sqs" {
   count = var.main-region == true ? 1 : 0
   name        = "tf-${var.owner}-yolo5-sqs"
   path        = "/"
@@ -89,7 +89,7 @@ resource "aws_iam_policy" "tf-maayana-yolo5-sqs" {
   })
 }
 
-resource "aws_iam_policy" "tf-maayana-yolo5-dynamo" {
+resource "aws_iam_policy" "tf-yolo5-dynamo" {
   count = var.main-region == true ? 1 : 0
   name        = "tf-${var.owner}-yolo5-dynamo"
   path        = "/"

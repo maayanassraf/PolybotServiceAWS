@@ -1,4 +1,4 @@
-resource "aws_security_group" "tf-maayana-yolo5-sg" {
+resource "aws_security_group" "tf-yolo5-sg" {
   name        = "tf-${var.owner}-yolo5-sg"
   description = "SG for yolo5 ec2 access"
   vpc_id = var.vpc_id

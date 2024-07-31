@@ -1,5 +1,5 @@
 output "launch_template_id" {
-  value = aws_launch_template.tf-maayana-yolo5-lt.id
+  value = aws_launch_template.tf-yolo5-lt.id
 }
 
 output "yolo5_instance_type" {

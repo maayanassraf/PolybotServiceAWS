@@ -4,7 +4,7 @@ resource "aws_instance" "app_server" {
 
   ami                         = var.ami_id
   instance_type               = data.aws_ec2_instance_types.polybot_instance_types.instance_types[0]
-  vpc_security_group_ids      = [aws_security_group.tf-maayana-polybot-sg.id]
+  vpc_security_group_ids      = [aws_security_group.tf-polybot-sg.id]
   subnet_id                   = var.subnet_ids[count.index]
   associate_public_ip_address = true
   key_name                    = var.key

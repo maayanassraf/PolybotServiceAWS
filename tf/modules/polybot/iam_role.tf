@@ -1,10 +1,10 @@
 resource "aws_iam_instance_profile" "polybot_instance_profile" {
   count = var.main-region == true ? 1 : 0
   name = "polybot_instance_profile"
-  role = aws_iam_role.tf-maayana-polybot-role[count.index].name
+  role = aws_iam_role.tf-polybot-role[count.index].name
 }
 
-resource "aws_iam_role" "tf-maayana-polybot-role" {
+resource "aws_iam_role" "tf-polybot-role" {
   count = var.main-region == true ? 1 : 0
   name                = "tf-${var.owner}-polybot-role"
   assume_role_policy = <<EOF
@@ -21,10 +21,10 @@ resource "aws_iam_role" "tf-maayana-polybot-role" {
   ]
 }
 EOF
-  managed_policy_arns = [aws_iam_policy.tf-maayana-polybot-s3[count.index].arn, aws_iam_policy.tf-maayana-polybot-sqs[count.index].arn, aws_iam_policy.tf-maayana-polybot-dynamo[count.index].arn, aws_iam_policy.tf-maayana-polybot-secrets-manager[count.index].arn]
+  managed_policy_arns = [aws_iam_policy.tf-polybot-s3[count.index].arn, aws_iam_policy.tf-polybot-sqs[count.index].arn, aws_iam_policy.tf-polybot-dynamo[count.index].arn, aws_iam_policy.tf-polybot-secrets-manager[count.index].arn]
 }
 
-resource "aws_iam_policy" "tf-maayana-polybot-secrets-manager" {
+resource "aws_iam_policy" "tf-polybot-secrets-manager" {
   count = var.main-region == true ? 1 : 0
   name        = "tf-${var.owner}-polybot-secrets-manager"
   path        = "/"
@@ -52,7 +52,7 @@ resource "aws_iam_policy" "tf-maayana-polybot-secrets-manager" {
   })
 }
 
-resource "aws_iam_policy" "tf-maayana-polybot-s3" {
+resource "aws_iam_policy" "tf-polybot-s3" {
   count = var.main-region == true ? 1 : 0
   name        = "tf-maayana-polybot-s3"
   path        = "/"
@@ -79,7 +79,7 @@ resource "aws_iam_policy" "tf-maayana-polybot-s3" {
   })
 }
 
-resource "aws_iam_policy" "tf-maayana-polybot-sqs" {
+resource "aws_iam_policy" "tf-polybot-sqs" {
   count = var.main-region == true ? 1 : 0
   name        = "tf-${var.owner}-polybot-sqs"
   path        = "/"
@@ -110,7 +110,7 @@ resource "aws_iam_policy" "tf-maayana-polybot-sqs" {
   })
 }
 
-resource "aws_iam_policy" "tf-maayana-polybot-dynamo" {
+resource "aws_iam_policy" "tf-polybot-dynamo" {
   count = var.main-region == true ? 1 : 0
   name        = "tf-${var.owner}-polybot-dynamo"
   path        = "/"
