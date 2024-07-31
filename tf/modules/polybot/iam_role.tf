@@ -41,7 +41,7 @@ resource "aws_iam_policy" "tf-maayana-polybot-secrets-manager" {
                 "secretsmanager:DescribeSecret",
                 "secretsmanager:ListSecretVersionIds"
             ],
-            "Resource": aws_secretsmanager_secret.tf-botToken.arn
+            "Resource": "*"
         },
         {
             "Effect": "Allow",
@@ -67,17 +67,13 @@ resource "aws_iam_policy" "tf-maayana-polybot-s3" {
             "Action": [
                 "s3:ListBucket"
             ],
-            "Resource": [
-                var.images_bucket_arn
-            ]
+            "Resource": "*"
         },
         {
             "Sid": "WriteAction",
             "Effect": "Allow",
             "Action": "s3:PutObject",
-            "Resource": [
-                "${var.images_bucket_arn}/images/*"
-            ]
+            "Resource": "*"
         }
     ]
   })
@@ -108,7 +104,7 @@ resource "aws_iam_policy" "tf-maayana-polybot-sqs" {
             "Action": [
                 "sqs:SendMessage"
             ],
-            "Resource": var.sqs_arn
+            "Resource": "*"
         }
     ]
   })
@@ -142,7 +138,7 @@ resource "aws_iam_policy" "tf-maayana-polybot-dynamo" {
                 "dynamodb:Query",
                 "dynamodb:Scan"
             ],
-            "Resource": var.dynamo_db_arn
+            "Resource": "*"
         }
     ]
   })

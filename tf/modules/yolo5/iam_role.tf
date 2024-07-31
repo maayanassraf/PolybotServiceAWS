@@ -39,25 +39,19 @@ resource "aws_iam_policy" "tf-maayana-yolo5-s3" {
             "Action": [
                 "s3:ListBucket"
             ],
-            "Resource": [
-                var.images_bucket_arn
-            ]
+            "Resource": "*"
         },
         {
             "Sid": "ReadAccessFromImagesFold",
             "Effect": "Allow",
             "Action": "s3:GetObject",
-            "Resource": [
-                "${var.images_bucket_arn}/images/*"
-            ]
+            "Resource": "*"
         },
         {
             "Sid": "WriteAccessToPredictedImagesFold",
             "Effect": "Allow",
             "Action": "s3:PutObject",
-            "Resource": [
-                "${var.images_bucket_arn}/predicted_images/*"
-            ]
+            "Resource": "*"
         }
     ]
   })
@@ -89,7 +83,7 @@ resource "aws_iam_policy" "tf-maayana-yolo5-sqs" {
                 "sqs:ReceiveMessage",
                 "sqs:DeleteMessage"
             ],
-            "Resource": var.sqs_arn
+            "Resource": "*"
         }
     ]
   })
@@ -122,7 +116,7 @@ resource "aws_iam_policy" "tf-maayana-yolo5-dynamo" {
                 "dynamodb:PutItem",
                 "dynamodb:UpdateItem"
             ],
-            "Resource": var.dynamo_db_arn
+            "Resource": "*"
         }
     ]
   })
