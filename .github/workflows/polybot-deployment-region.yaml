@@ -1,4 +1,4 @@
-name: Polybot Microservice Deployment
+name: Polybot Microservice Deployment Specific Region
 
 on:
   workflow_call:
@@ -13,34 +13,8 @@ on:
         required: true
       PRIVATE_KEY:
         required: true
-#  workflow_dispatch:
-#    inputs:
-#      eu-north-1:
-#        description: 'Stockholm (eu-north-1)'
-#        required: false
-#        type: boolean
-#      region-code:
-#        description: 'N.Virginia (us-east-1)'
-#        required: true
-#        type: string
 
 jobs:
-#  Create-env-File:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout the repo code
-#        uses: actions/checkout@v2
-#      - name: Setup Terraform for needed env
-#        uses: hashicorp/setup-terraform@v3
-#        with:
-#          terraform_wrapper: false
-#          terraform_version: 1.7.0
-#      - name: Get needed outputs from tf
-#        run: |
-#          cd tf
-#          TEST_VAR=$(terraform output launch_template_id)
-#          echo $TEST_VAR
-
   Deploy:
     runs-on: ubuntu-latest
     steps:

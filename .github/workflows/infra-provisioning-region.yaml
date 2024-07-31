@@ -25,8 +25,6 @@ jobs:
     defaults:
       run:
         working-directory: ./tf  # The directory containing your Terraform configuration files
-    outputs:
-      lt-id: ${{ steps.apply.outputs.LT_ID }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -37,11 +35,7 @@ jobs:
           terraform_version: 1.7.0
 
       - name: Terraform init
-        run: |
-          aws --version
-          printenv
-          aws sts get-caller-identity
-          terraform init
+        run: terraform init
 
       - name: Terraform workspace select
         run: terraform workspace select ${{ inputs.region-code }} || terraform workspace new ${{ inputs.region-code }}
@@ -59,7 +53,3 @@ jobs:
         run: |
           export TF_VAR_botToken=${{ secrets.TELEGRAM_TOKEN }}
           terraform apply -auto-approve -var-file=region.${{ inputs.region-code }}.tfvars
-
-      - name: Calls Terraform outputs
-        run: |
-          echo LT_ID=$(terraform output launch_template_id) >> $GITHUB_OUTPUT

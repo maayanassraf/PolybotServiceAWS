@@ -1,4 +1,4 @@
-name: Yolo5 Microservice Deployment
+name: Yolo5 Microservice Deployment Specific Region
 
 on:
   workflow_call:
