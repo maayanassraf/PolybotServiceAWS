@@ -12,7 +12,7 @@ images_bucket = os.environ['BUCKET_NAME']
 queue_name = os.environ['SQS_QUEUE_NAME']
 REGION_NAME = os.environ['REGION_NAME']
 DYNAMODB_TABLE = os.environ['DYNAMODB_TABLE']
-ALB_URL = os.environ['ALB_URL']
+POLYBOT_URL = os.environ['POLYBOT_URL']
 
 sqs_client = boto3.client('sqs', region_name=REGION_NAME)
 
@@ -119,7 +119,7 @@ def consume():
                 try:
                     # performs a POST request to Polybot to `/results` endpoint
                     result = requests.post(
-                        f'http://{ALB_URL}/results?predictionId={prediction_id}')
+                        f'{POLYBOT_URL}/results?predictionId={prediction_id}')
                 except:
                     logger.error(f'An error occurred while trying to access polybot "/results" endpoint')
 
