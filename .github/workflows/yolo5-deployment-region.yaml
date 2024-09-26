@@ -87,7 +87,7 @@ jobs:
           SQS_QUEUE_NAME=tf-$OWNER-project-queue
           REGION_NAME=$AWS_DEFAULT_REGION
           DYNAMODB_TABLE=tf-$OWNER-predictions-dynamodb-table
-          ALB_URL=$OWNER-polybot-$AWS_DEFAULT_REGION.int-devops.click:8443" | tr -d ' ' > .env
+          POLYBOT_URL=http://$OWNER-polybot-$AWS_DEFAULT_REGION.int-devops.click:8443" | tr -d ' ' > .env
           
           # Gets from env only the IPs
           YOLO5_SERVERS_IP=${YOLO5_SERVERS_IP#*:}
