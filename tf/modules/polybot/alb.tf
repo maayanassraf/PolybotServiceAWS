@@ -54,6 +54,22 @@ resource "aws_lb_listener" "alb_http" {
   }
 }
 
+resource "aws_lb_listener_rule" "allow_post_requests" {
+  listener_arn = aws_lb_listener.alb_http.arn
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_alb_target_group.polybot-tg.arn
+  }
+
+  condition {
+    field  = "http-request-method"
+    values = ["POST"]
+  }
+
+  priority = 1
+}
+
 resource "aws_route53_record" "alb_record" {
   name    = "${var.owner}-polybot-${var.region}"
   type    = "A"
